@@ -6,7 +6,7 @@ app = flask.Flask(__name__)
 
 @app.route('/')
 def index():
-    return flask.redirect(flask.url_for('map'))
+    return flask.redirect(flask.url_for('map_handler'))
 
 @app.route('/map')
 def map_handler():

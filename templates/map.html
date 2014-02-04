@@ -4,12 +4,37 @@
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/angya.css') }}">
     <script type="text/javascript"
-      src="https://maps.googleapis.com/maps/api/js?sensor=true">
+      src="https://maps.googleapis.com/maps/api/js?libraries=places&sensor=true">
     </script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/map.js') }}">
     </script>
   </head>
   <body>
-    <div id="map-canvas"/>
+    <input id="search-box" class="controls" type="text" placeholder="Search Box">
+    <div id="map-canvas"></div>
+    <div id="info-content">
+      <table>
+        <tr id="iw-url-row" class="iw_table_row">
+          <td id="iw-icon" class="iw_table_icon"></td>
+          <td id="iw-url"></td>
+        </tr>
+        <tr id="iw-address-row" class="iw_table_row">
+          <td class="iw_attribute_name">Address:</td>
+          <td id="iw-address"></td>
+        </tr>
+        <tr id="iw-phone-row" class="iw_table_row">
+          <td class="iw_attribute_name">Telephone:</td>
+          <td id="iw-phone"></td>
+        </tr>
+        <tr id="iw-rating-row" class="iw_table_row">
+          <td class="iw_attribute_name">Rating:</td>
+            <td id="iw-rating"></td>
+        </tr>
+        <tr id="iw-website-row" class="iw_table_row">
+          <td class="iw_attribute_name">Website:</td>
+            <td id="iw-website"></td>
+        </tr>
+      </table>
+    </div>
   </body>
 </html>
