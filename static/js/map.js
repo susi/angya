@@ -1,9 +1,10 @@
 var map;
 var geoclocation = new google.maps.LatLng(0, 0);
-var infoWindow;
-var placesSrv;
-var infoWindowContent;
+var placesSrv; // Places service used by the search box.
+var infoWindowContent; // The element which holds the current info window content
+var infoWindow; // The InfoWindow object.
 
+// Initializes the map app.
 function initialize() {
     geolocate();
     var mapOptions = {
@@ -16,6 +17,7 @@ function initialize() {
     infoWindow = new google.maps.InfoWindow({
         content: infoWindowContent
     });
+
     // Create the search box and link it to the UI element.
     var searchBoxInput = document.getElementById("search-box");
     map.controls[google.maps.ControlPosition.TOP_LEFT].push(searchBoxInput);
@@ -86,6 +88,7 @@ function geolocate() {
     }
 }
 
+// Get the detailed information of a place and show it in the infoWindow
 function getPlaceDetails() {
     marker = this;
     placesSrv.getDetails(
@@ -103,6 +106,7 @@ function getPlaceDetails() {
         });
 }
 
+// Create the infoWindow contents from the place deatis json.
 function buildPlaceIW(place) {
     document.body.appendChild(infoWindowContent);
     console.log("buildPlaceIW("+place.name+")");
@@ -147,4 +151,6 @@ function buildPlaceIW(place) {
     }
 }
 
+// Wait for the whole page to load before showin the map.
 google.maps.event.addDomListener(window, 'load', initialize);
+
