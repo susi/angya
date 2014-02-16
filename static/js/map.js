@@ -151,6 +151,6 @@ function buildPlaceIW(place) {
     }
 }
 
-// Wait for the whole page to load before showin the map.
+// Wait for the whole page to load before showing the map.
 google.maps.event.addDomListener(window, 'load', initialize);
 
