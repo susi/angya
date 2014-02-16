@@ -1,0 +1,12 @@
+runtime: python27
+version: 0-0-1-Tagus
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: .*
+  script: angya.app
+
+libraries:
+- name: jinja2
+  version: 2.6
