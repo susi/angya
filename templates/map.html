@@ -2,16 +2,26 @@
 <html>
   <head>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/angya.css') }}">
-    <script type="text/javascript"
-      src="https://maps.googleapis.com/maps/api/js?libraries=places&sensor=true">
+    <link rel="stylesheet" type="text/css"
+          href="{{ url_for('static', filename='css/angya.css') }}">
+    <script
+       type="text/javascript"
+       src="https://maps.googleapis.com/maps/api/js?v=3.15&libraries=places&sensor=true">
     </script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/map.js') }}">
+    <script 
+       type="text/javascript" src="http://www.panoramio.com/wapi/wapi.js?v=1">
+    </script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='js/filmstrip.js') }}">
+    </script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='js/map.js') }}">
     </script>
   </head>
   <body>
     <input id="search-box" class="controls" type="text" placeholder="Search Box">
     <div id="map-canvas"></div>
+    <div id="filmstrip" class="gradual"></div>
     <div id="info-content">
       <table>
         <tr id="iw-url-row" class="iw_table_row">
@@ -35,6 +45,7 @@
             <td id="iw-website"></td>
         </tr>
       </table>
+      <img id="iw-photo" style="display:none;">
     </div>
   </body>
 </html>

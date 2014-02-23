@@ -27,3 +27,11 @@ body {
     outline: none;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
+
+.gradual {
+    -webkit-transition: 1s;
+    -moz-transition: 1s;
+    -ms-transition: 1s;
+    -o-transition: 1s;
+    transition: 1s;
+}

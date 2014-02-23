@@ -3,6 +3,9 @@ var geoclocation = new google.maps.LatLng(0, 0);
 var placesSrv; // Places service used by the search box.
 var infoWindowContent; // The element which holds the current info window content
 var infoWindow; // The InfoWindow object.
+var filmstrip;
+var markers = [];
+var lastUpdate;
 
 // Initializes the map app.
 function initialize() {
@@ -17,6 +20,8 @@ function initialize() {
     infoWindow = new google.maps.InfoWindow({
         content: infoWindowContent
     });
+    filmstrip = new Filmstrip(document.getElementById('filmstrip'),
+                              photoClicked);
 
     // Create the search box and link it to the UI element.
     var searchBoxInput = document.getElementById("search-box");
@@ -26,50 +31,139 @@ function initialize() {
 
     // Listen for the event fired when the user selects an item from the
     // pick list. Retrieve the matching places for that item.
-    var markers = [];
     google.maps.event.addListener(searchBox, 'places_changed', function() {
+        infoWindow.close();
         var places = searchBox.getPlaces();
-
-        for (var i = 0, marker; marker = markers[i]; i++) {
-            marker.setMap(null);
-        }
-
-        // For each place, get the icon, place name, and location.
-        markers = [];
-        var bounds = new google.maps.LatLngBounds();
-        for (var i = 0, place; place = places[i]; i++) {
-            var image = {
-                url: place.icon,
-                size: new google.maps.Size(71, 71),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(9, 9),
-                scaledSize: new google.maps.Size(18, 18)
-            };
-            // Create a marker for each place.
-            var marker = new google.maps.Marker({
-                map: map,
-                icon: image,
-                title: place.name,
-                position: place.geometry.location,
-                animation: google.maps.Animation.DROP,
-            });
-            marker.place = place;
-            // Get the detailed place info and show it when a user clicks on a marker.
-            google.maps.event.addListener(marker, 'click', getPlaceDetails);
-
-            markers.push(marker);
-            bounds.extend(place.geometry.location);
-            map.fitBounds(bounds);
-        }
+        placeMarkersOnMap(places);
     });
 
+    lastUpdate = new Date().getTime();
     // Bias the SearchBox results towards places that are within the bounds of the
     // current map's viewport.
     google.maps.event.addListener(map, 'bounds_changed', function() {
         var bounds = map.getBounds();
         searchBox.setBounds(bounds);
+        now = new Date().getTime();
+        // limit refreshes to happen at most every 5 seconds.
+        if(now - lastUpdate > 5000) {
+            lastUpdate=now;
+            filmstrip.update(bounds);
+        }
     });
+}
 
+function photoClicked(photoLocation) {
+    placesSrv.nearbySearch(
+        {location: photoLocation,
+         radius: 5000,
+         types: [
+             "amusement_park",
+             "aquarium",
+             "art_gallery",
+             "bar",
+             "cafe",
+             "campground",
+             "casino",
+             "cemetery",
+             "church",
+             "city_hall",
+             "embassy",
+             "establishment",
+             "hindu_temple",
+             "library",
+             "lodging",
+             "mosque",
+             "movie_theater",
+             "museum",
+             "night_club",
+             "park",
+             "restaurant",
+             "rv_park",
+             "spa",
+             "stadium",
+             "synagogue",
+             "zoo"]
+        },
+        function(places, status) {
+            if (status == google.maps.places.PlacesServiceStatus.OK) {
+                placeMarkersOnMap(places);
+            }
+        });
+}
+
+function placeMarkersOnMap(places) {
+    // fake the last update to be -10 ago, to force the filmstrip update
+    lastUpdate = new Date().getTime() - 10000;
+    // Remove previous markers from the map and clear the markers array
+    for (var i = 0, marker; marker = markers[i]; i++) {
+        marker.setMap(null);
+    }
+    markers.length = 0;
+    var bounds = new google.maps.LatLngBounds();
+
+    // For each place, get the icon, place name, and location.
+    for (var i = 0, place; place = places[i]; i++) {
+        // Marker icon
+        var image = {
+            url: place.icon,
+            size: new google.maps.Size(71, 71),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(9, 9),
+            scaledSize: new google.maps.Size(18, 18)
+        };
+        // Create a marker for each place.
+        var marker = new google.maps.Marker({
+            map: map,
+            icon: image,
+            title: place.name,
+            position: place.geometry.location,
+            animation: google.maps.Animation.DROP,
+        });
+        marker.place = place;
+        // Get the detailed place info and show it when a user clicks on a marker.
+        google.maps.event.addListener(marker, 'click', getPlaceDetails);
+        placesSrv.getDetails(
+            {reference: marker.place.reference},
+            function(place, status)
+            {
+                if (status != google.maps.places.PlacesServiceStatus.OK) {
+                    console.log("no photo :(");
+                    return;
+                }
+            }
+        );
+        markers.push(marker);
+        bounds.extend(place.geometry.location);
+    }
+    map.fitBounds(bounds);
+}
+
+// Adds photos from the region to the filmstrip
+function setFilmstripPhotos(results, status) {
+    filmstrip.clearImages();
+    if (status == google.maps.places.PlacesServiceStatus.OK) {
+        for (var i = 0; i < results.length; i++) {
+            var place = results[i];
+            placesSrv.getDetails(
+                {reference: place.reference},
+                function(place, status) {
+                    if (status != google.maps.places.PlacesServiceStatus.OK) {
+                        console.log("nophoto :(");
+                        return;
+                    }
+                    if (place.photos) {
+                        filmstrip.addImage(
+                            place.photos[0].getUrl(
+                                {maxHeight: 80, maxWidth:
+                                 (window.innerWith / 10) - 10}
+                            ), function() {
+                                console.log("photoclick!!");
+                            });
+                    }
+                }
+            );
+        }
+    }
 }
 
 // Bias the initial map position to the user's geographical location,
@@ -81,6 +175,9 @@ function geolocate() {
             geolocation = new google.maps.LatLng(
                 position.coords.latitude, position.coords.longitude);
             if (map) {
+                // fake the last update to be -10 ago, to force the
+                // filmstrip update
+                lastUpdate = new Date().getTime() - 10000;
                 map.setCenter(geolocation);
                 map.setZoom(8);
             }
@@ -149,8 +246,17 @@ function buildPlaceIW(place) {
     } else {
         document.getElementById('iw-website-row').style.display = 'none';
     }
+
+    if (place.photos) {
+        imgUrl = place.photos[0].getUrl({maxHeight: 200, maxWidth: 200});
+        img = document.getElementById('iw-photo');
+        img.src = imgUrl;
+        img.style.display = 'block';
+    }
+    else {
+        document.getElementById('iw-photo').style.display = 'none';
+    }
 }
 
 // Wait for the whole page to load before showing the map.
 google.maps.event.addDomListener(window, 'load', initialize);
-
