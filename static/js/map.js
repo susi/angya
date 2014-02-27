@@ -50,6 +50,14 @@ function initialize() {
             filmstrip.update(bounds);
         }
     });
+    // put some dummy controls
+    map.controls[google.maps.ControlPosition.RIGHT_TOP].push(document.getElementById("addplace"));
+    map.controls[google.maps.ControlPosition.RIGHT_TOP].push(document.getElementById("addphoto"));
+    map.controls[google.maps.ControlPosition.RIGHT_TOP].push(document.getElementById("addmovie"));
+    map.controls[google.maps.ControlPosition.RIGHT_TOP].push(document.getElementById("addimpression"));
+    map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(document.getElementById("buttons"));
+    map.controls[google.maps.ControlPosition.TOP_CENTER].push(document.getElementById("login"));
+
 }
 
 function photoClicked(photoLocation) {

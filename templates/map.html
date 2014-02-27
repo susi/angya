@@ -19,8 +19,20 @@
     </script>
   </head>
   <body>
-    <input id="search-box" class="controls" type="text" placeholder="Search Box">
+    <input id="search-box" class="controls" type="text" placeholder="Search for a place...">
     <div id="map-canvas"></div>
+    <img src="{{ url_for('static', filename='img/add_place.png') }}"
+         id="addplace" width="138" height="90">
+    <img src="{{ url_for('static', filename='img/add_photo.png') }}"
+         id="addphoto" class="controls" width="138" height="90">
+    <img src="{{ url_for('static', filename='img/add_movie.png') }}"
+         id="addmovie" class="controls" width="138" height="90">
+    <img src="{{ url_for('static', filename='img/add_impression.png') }}"
+         id="addimpression" class="controls" width="138" height="90">
+    <img src="{{ url_for('static', filename='img/buttons.png') }}"
+         id="buttons" class="controls" width="435" height="44">
+    <img src="{{ url_for('static', filename='img/login_register.png') }}"
+         id="login" width="260" height="44" style="margin-top:0;">
     <div id="filmstrip" class="gradual"></div>
     <div id="info-content">
       <table>
