@@ -16,8 +16,8 @@ function initialize() {
     };
     infoWindowContent = document.getElementById('info-content');
     map = new google.maps.Map(document.getElementById("map-canvas"),
-                              mapOptions);
-    infoWindow = new google.maps.InfoWindow({
+                              mapOptions); 
+   infoWindow = new google.maps.InfoWindow({
         content: infoWindowContent
     });
     filmstrip = new Filmstrip(document.getElementById('filmstrip'),
@@ -50,6 +50,29 @@ function initialize() {
             filmstrip.update(bounds);
         }
     });
+    widgetLoader = new XMLHttpRequest();
+    widgetLoader.onreadystatechange = function() {
+        if ((widgetLoader.readyState==4) && (widgetLoader.status==200)) {
+            var widget = JSON.parse(widgetLoader.responseText);
+            var div = document.createElement('div');
+            div.innerHTML = widget.html;
+            map.controls[google.maps.ControlPosition.TOP_RIGHT].push(div);
+            google.maps.event.addDomListener(div, 'mouseover', widgetHover);
+            google.maps.event.addDomListener(div, 'mouseout', widgetHover);
+        }
+    };
+    widgetLoader.open("GET", "/widgets/login", true);
+    widgetLoader.send(null);
+}
+
+function widgetHover() {
+    widgetDiv = document.getElementById('login');
+    if (widgetDiv.className.indexOf('inactive') != -1) {
+        widgetDiv.className = 'widget active';
+    }
+    else {
+        widgetDiv.className = 'widget inactive';
+    }
 }
 
 function photoClicked(photoLocation) {

@@ -39,9 +39,9 @@ body {
 /* widgets */
 .widget {
     background-color: pink;
-    padding: 5px;
+    padding: 10px;
     font-family: Roboto;
-    font-size: 20px;
+    font-size: 30px;
     font-weight: 300;
     font-variant:small-caps;
 }
@@ -55,6 +55,11 @@ body {
 
 /* Login button */
 #login {
-    width: 50px;
-    height: 20px;
+    width: 99px;
+    height: 33px;
+}
+
+#login img {
+    width: 24px;
+    height: 24px;
 }
