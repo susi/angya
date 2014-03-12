@@ -35,3 +35,26 @@ body {
     -o-transition: 1s;
     transition: 1s;
 }
+
+/* widgets */
+.widget {
+    background-color: pink;
+    padding: 5px;
+    font-family: Roboto;
+    font-size: 20px;
+    font-weight: 300;
+    font-variant:small-caps;
+}
+
+.active {
+    background-color: #fed420;
+}
+.inactive {
+    background-color: #999;
+}
+
+/* Login button */
+#login {
+    width: 50px;
+    height: 20px;
+}

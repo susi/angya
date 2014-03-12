@@ -7,6 +7,7 @@ import flask
 
 #local URL handlers
 import map #handles the /map url
+import widgets.login
 
 # Create a fals application.
 app = flask.Flask(__name__)
@@ -21,6 +22,11 @@ def map_handler():
     """Creates a Map object and renders it."""
     map_app = map.Map(app);
     return map_app.render()
+
+@app.route('/widgets/login')
+def login_handler():
+    login = widgets.login.LoginButton(app)
+    return login.render(True)
 
 if __name__ == '__main__':
     app.run(debug=True)
