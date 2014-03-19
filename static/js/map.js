@@ -6,64 +6,91 @@ var infoWindow; // The InfoWindow object.
 var filmstrip;
 var markers = [];
 var lastUpdate;
+var loginButton;
 
-// Initializes the map app.
-function initialize() {
-    geolocate();
-    var mapOptions = {
-        center: geoclocation,
-        zoom: 5
-    };
-    infoWindowContent = document.getElementById('info-content');
-    map = new google.maps.Map(document.getElementById("map-canvas"),
-                              mapOptions); 
-   infoWindow = new google.maps.InfoWindow({
-        content: infoWindowContent
-    });
-    filmstrip = new Filmstrip(document.getElementById('filmstrip'),
-                              photoClicked);
+$(document).ready(function(){
+  geolocate();
 
-    // Create the search box and link it to the UI element.
-    var searchBoxInput = document.getElementById("search-box");
-    map.controls[google.maps.ControlPosition.TOP_LEFT].push(searchBoxInput);
-    var searchBox = new google.maps.places.SearchBox(searchBoxInput);
-    placesSrv = new google.maps.places.PlacesService(map);
+	// =========== variables ===============
+  var mapOptions = {
+    center: geoclocation,
+    zoom: 5
+  };
 
-    // Listen for the event fired when the user selects an item from the
-    // pick list. Retrieve the matching places for that item.
-    google.maps.event.addListener(searchBox, 'places_changed', function() {
-        infoWindow.close();
-        var places = searchBox.getPlaces();
-        placeMarkersOnMap(places);
-    });
+  // Search box
+  var searchBoxInput = document.getElementById("search-box");
+  var searchBox = new google.maps.places.SearchBox(searchBoxInput);
 
-    lastUpdate = new Date().getTime();
-    // Bias the SearchBox results towards places that are within the bounds of the
-    // current map's viewport.
-    google.maps.event.addListener(map, 'bounds_changed', function() {
-        var bounds = map.getBounds();
-        searchBox.setBounds(bounds);
-        now = new Date().getTime();
-        // limit refreshes to happen at most every 5 seconds.
-        if(now - lastUpdate > 5000) {
-            lastUpdate=now;
-            filmstrip.update(bounds);
-        }
-    });
-    widgetLoader = new XMLHttpRequest();
-    widgetLoader.onreadystatechange = function() {
-        if ((widgetLoader.readyState==4) && (widgetLoader.status==200)) {
-            var widget = JSON.parse(widgetLoader.responseText);
-            var div = document.createElement('div');
-            div.innerHTML = widget.html;
-            map.controls[google.maps.ControlPosition.TOP_RIGHT].push(div);
-            google.maps.event.addDomListener(div, 'mouseover', widgetHover);
-            google.maps.event.addDomListener(div, 'mouseout', widgetHover);
-        }
-    };
-    widgetLoader.open("GET", "/widgets/login", true);
-    widgetLoader.send(null);
-}
+  // Infowindow
+  infoWindowContent = document.getElementById('info-content');
+  infoWindow = new google.maps.InfoWindow({
+    content: infoWindowContent
+  });
+
+  // Film strip
+  filmstrip = new Filmstrip(document.getElementById('filmstrip'),
+                            photoClicked);
+
+  lastUpdate = new Date().getTime();
+
+  // The map
+  map = new google.maps.Map(document.getElementById("map-canvas"),
+                            mapOptions);
+  // places service is bound to the search box and the map.
+  placesSrv = new google.maps.places.PlacesService(map);
+
+	// =========== functions ===============
+  // get the user's location
+
+  // Place the search box in the top left corner.
+  map.controls[google.maps.ControlPosition.TOP_LEFT].push(searchBoxInput);
+
+  // Listen for the event fired when the user selects an item from the
+  // pick list. Retrieve the matching places for that item.
+  google.maps.event.addListener(searchBox, 'places_changed', function() {
+      infoWindow.close();
+      var places = searchBox.getPlaces();
+      placeMarkersOnMap(places);
+  });
+
+  // Bias the SearchBox results towards places that are within the bounds of the
+  // current map's viewport.
+  google.maps.event.addListener(map, 'bounds_changed', function() {
+    var bounds = map.getBounds();
+    searchBox.setBounds(bounds);
+    now = new Date().getTime();
+    // limit refreshes to happen at most every 5 seconds.
+    if(now - lastUpdate > 5000) {
+      lastUpdate=now;
+      filmstrip.update(bounds);
+    }
+  });
+
+  widgetLoader = new XMLHttpRequest();
+  widgetLoader.onreadystatechange = function() {
+    if ((widgetLoader.readyState==4) && (widgetLoader.status==200)) {
+      var widget = JSON.parse(widgetLoader.responseText);
+      var div = document.createElement('div');
+      div.innerHTML = widget.html;
+      console.log('fetching ' + widget.js)
+      $.getScript(widget.js)
+        .done(function(script, textStatus) {
+          console.log(script);
+          console.log(textStatus);
+          loginButton = new LoginButton(div, widget.position);
+        })
+        .fail(function(jqxhr, settings, exception) {
+          console.log("Triggered ajaxError handler.");
+          console.log(jqxhr)
+          console.log(settings)
+          console.log(exception)
+      });
+    }
+  };
+  widgetLoader.open("GET", "/widgets/login", true);
+  widgetLoader.send(null);
+
+});
 
 function widgetHover() {
     widgetDiv = document.getElementById('login');
@@ -280,6 +307,3 @@ function buildPlaceIW(place) {
         document.getElementById('iw-photo').style.display = 'none';
     }
 }
-
-// Wait for the whole page to load before showing the map.
-google.maps.event.addDomListener(window, 'load', initialize);

@@ -11,7 +11,8 @@ class LoginButton(object):
     def render(self, is_login=True):
         button = {}
         if is_login:
-            button['name'] = "login"
+            button['name'] = 'login'
             button['html'] = flask.render_template('widgets/login.html')
+            button['position'] = 'TOP_RIGHT'
+            button['js'] = flask.url_for('static', filename='js/widgets/login.js')
         return flask.jsonify(**button)
-

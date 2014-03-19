@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <link rel="stylesheet" type="text/css"
           href="{{ url_for('static', filename='css/angya.css') }}">
+    <link rel="stylesheet" type="text/css"
+        href="{{ url_for('static', filename='css/widgets.css') }}">
     <script
        type="text/javascript"
        src="https://maps.googleapis.com/maps/api/js?v=3.15&libraries=places&sensor=true">
@@ -11,6 +13,8 @@
     <script 
        type="text/javascript" src="http://www.panoramio.com/wapi/wapi.js?v=1">
     </script>
+    <!--script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script-->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.11.0.js') }}"></script>
     <script type="text/javascript"
             src="{{ url_for('static', filename='js/filmstrip.js') }}">
     </script>

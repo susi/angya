@@ -1,0 +1,105 @@
+/** login widget */
+#login {
+  background:#ededed;
+}
+
+#login > a {
+  -moz-transition:background-color .5s;
+  -o-transition:background-color .5s;
+  -webkit-transition:background-color .5s;
+  background:url(/static/img/icons.png) 79px -7px no-repeat;
+  background-color:#d0d0d0;
+  color:#000;
+  display:inline-block;
+  float:right;
+  font-size:16px;
+  letter-spacing:2px;
+  padding:15px;
+  text-transform:uppercase;
+  transition:background-color .5s;
+  width:100px;
+}
+
+#login > a#loginRegister {
+  background-position:79px -67px;
+}
+
+#login > a:hover {
+  background-color:#ffd420;
+}
+
+#login {
+  position:relative;
+}
+
+.logInBox {
+  background:#FFF;
+  border:1px solid #d0d0d0;
+  display:none;
+  padding:41px;
+  position:absolute;
+  right:237px;
+  top:34px;
+  width: 266px;
+}
+
+.closeIcon {
+  -moz-border-radius:50%;
+  -o-border-radius:50%;
+  -webkit-border-radius:50%;
+  background:url(/static/img/icons.png) 7px -478px #FFF;
+  border:2px solid #000;
+  border-radius:50%;
+  display:inline-block;
+  height:30px;
+  position:absolute;
+  right:-15px;
+  top:-15px;
+  width:30px;
+  z-index:1;
+}
+
+.logInBox input {
+  display:inline-block;
+  font-size:18px;
+  font-weight:700;
+  padding:17px 17px 17px 0;
+  vertical-align:top;
+  width:76%;
+}
+
+.logInBox i {
+  background:url(/static/img/icons.png) -4px -604px;
+  display:inline-block;
+  height:18px;
+  margin:20px 15px 0;
+  width:16px;
+}
+
+.logInBox div:first-child i {
+  background-position:-4px -542px;
+}
+
+.logInBox div {
+  border:1px solid #d0d0d0;
+  margin-bottom:20px;
+}
+
+.logInBox form input:first-child {
+  background-position:7px -523px;
+  margin-bottom:21px;
+}
+
+.logInBox form input[type=submit] {
+  background:#ffd420;
+  border:0;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  width:100%;
+}
+
+.logInBox input::-webkit-input-placeholder,.logInBox input::-moz-placeholder,.logInBox input:-moz-placeholder,.logInBox input:-ms-placeholder {
+  color:#000;
+  font-weight:700;
+  letter-spacing:3px;
+}

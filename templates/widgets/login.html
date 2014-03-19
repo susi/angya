@@ -1,3 +1,18 @@
-<div id="login" class="widget inactive">
-  login <img src="{{ url_for('static', filename='img/lock-icon.png') }}">
+<div id="login" class="clearFix">
+    <a href="#" id="loginRegister">register</a>
+	<a href="#" id="logInBut">login</a>
+    <!-- log-in popup -->
+    <div class="logInBox">
+        <a href="#" title="close" class="closeIcon"></a>
+        <form>
+            <div>
+                <i></i><input type="text" placeholder="name...">
+            </div>
+            <div>
+                <i></i><input type="password" placeholder="password...">
+            </div>
+            <input id="submitLogin" type="submit" value="login">
+        </form>
+    </div>
+    <!-- end log in popup -->
 </div>
