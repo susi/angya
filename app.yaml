@@ -1,5 +1,5 @@
 runtime: python27
-version: 0-0-2-rhine
+version: login-widget
 api_version: 1
 threadsafe: true
 
