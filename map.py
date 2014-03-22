@@ -6,7 +6,7 @@ import flask
 
 class Map(object):
     def __init__(self, app):
-        self._app = app
+        self.app = app
     def render(self):
         return flask.render_template('map.html')
 

@@ -81,10 +81,9 @@ $(document).ready(function(){
         })
         .fail(function(jqxhr, settings, exception) {
           console.log("Triggered ajaxError handler.");
-          console.log(jqxhr)
-          console.log(settings)
-          console.log(exception)
-      });
+          console.log(exception.stack);
+          console.log(exception.message);
+        });
     }
   };
   widgetLoader.open("GET", "/widgets/login", true);
