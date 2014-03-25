@@ -20,7 +20,7 @@ function Filmstrip(div, photoSelectedCB) {
     this.className = "gradual;"
     // by default the filmstrip is hidden to a semitransparent triangle.
     this.div.style.position = "absolute";
-    this.div.style.left = "0";
+    this.div.style.left = "74px";
     this.div.style.bottom = "30px";
     this.div.style.overflow = "hidden";
     this.div.style.backgroundColor = "rgba(0, 0, 0, 0)";
