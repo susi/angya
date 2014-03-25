@@ -3,7 +3,6 @@ var geoclocation = new google.maps.LatLng(0, 0);
 var placesSrv; // Places service used by the search box.
 var infoWindowContent; // The element which holds the current info window content
 var infoWindow; // The InfoWindow object.
-var filmstrip;
 var markers = [];
 var lastUpdate;
 var loginButton;
@@ -21,21 +20,18 @@ $(document).ready(function(){
   var searchBoxInput = document.getElementById("search-box");
   var searchBox = new google.maps.places.SearchBox(searchBoxInput);
 
-  // Infowindow
-  infoWindowContent = document.getElementById('info-content');
-  infoWindow = new google.maps.InfoWindow({
-    content: infoWindowContent
-  });
-
-  // Film strip
-  filmstrip = new Filmstrip(document.getElementById('filmstrip'),
-                            photoClicked);
-
-  lastUpdate = new Date().getTime();
-
   // The map
   map = new google.maps.Map(document.getElementById("map-canvas"),
                             mapOptions);
+
+  // Infowindow
+  infoWindowContent = document.getElementById('info-content');
+  infoWindow = new google.maps.InfoWindow({
+      content: infoWindowContent,
+      map: map
+  });
+  infoWindow.close();
+
   // places service is bound to the search box and the map.
   placesSrv = new google.maps.places.PlacesService(map);
 
@@ -62,9 +58,16 @@ $(document).ready(function(){
     // limit refreshes to happen at most every 5 seconds.
     if(now - lastUpdate > 5000) {
       lastUpdate=now;
-      filmstrip.update(bounds);
     }
   });
+
+    $("#map-nav").mouseenter(function() {
+        if($(this).hasClass("hidden-nav")) {
+            $(this).removeClass("hidden-nav").addClass("visible-nav");
+            updateNotifications();
+        }
+    });
+    $("#map-nav").removeClass("visible-nav").addClass("hidden-nav");
 
   widgetLoader = new XMLHttpRequest();
   widgetLoader.onreadystatechange = function() {
@@ -90,6 +93,20 @@ $(document).ready(function(){
   widgetLoader.send(null);
 
 });
+
+// map navigation number notification content test
+function updateNotifications(event){
+    notiContent = $('#map-nav a strong');
+    notiContent.each(function(){
+	innerInfo = $(this).text();
+	if (innerInfo===''){
+	    $(this).css('display','none');
+	}else{
+	    $(this).css('display','block');
+	}
+    });
+}
+
 
 function widgetHover() {
     widgetDiv = document.getElementById('login');
@@ -141,8 +158,6 @@ function photoClicked(photoLocation) {
 }
 
 function placeMarkersOnMap(places) {
-    // fake the last update to be -10 ago, to force the filmstrip update
-    lastUpdate = new Date().getTime() - 10000;
     // Remove previous markers from the map and clear the markers array
     for (var i = 0, marker; marker = markers[i]; i++) {
         marker.setMap(null);
@@ -187,33 +202,6 @@ function placeMarkersOnMap(places) {
     map.fitBounds(bounds);
 }
 
-// Adds photos from the region to the filmstrip
-function setFilmstripPhotos(results, status) {
-    filmstrip.clearImages();
-    if (status == google.maps.places.PlacesServiceStatus.OK) {
-        for (var i = 0; i < results.length; i++) {
-            var place = results[i];
-            placesSrv.getDetails(
-                {reference: place.reference},
-                function(place, status) {
-                    if (status != google.maps.places.PlacesServiceStatus.OK) {
-                        console.log("nophoto :(");
-                        return;
-                    }
-                    if (place.photos) {
-                        filmstrip.addImage(
-                            place.photos[0].getUrl(
-                                {maxHeight: 80, maxWidth:
-                                 (window.innerWith / 10) - 10}
-                            ), function() {
-                                console.log("photoclick!!");
-                            });
-                    }
-                }
-            );
-        }
-    }
-}
 
 // Bias the initial map position to the user's geographical location,
 // as supplied by the browser's 'navigator.geolocation' object.
@@ -224,9 +212,6 @@ function geolocate() {
             geolocation = new google.maps.LatLng(
                 position.coords.latitude, position.coords.longitude);
             if (map) {
-                // fake the last update to be -10 ago, to force the
-                // filmstrip update
-                lastUpdate = new Date().getTime() - 10000;
                 map.setCenter(geolocation);
                 map.setZoom(8);
             }

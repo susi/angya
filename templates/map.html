@@ -16,29 +16,24 @@
     <!--script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script-->
     <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.11.0.js') }}"></script>
     <script type="text/javascript"
-            src="{{ url_for('static', filename='js/filmstrip.js') }}">
-    </script>
-    <script type="text/javascript"
             src="{{ url_for('static', filename='js/map.js') }}">
     </script>
   </head>
   <body>
-    <section class="mapSec">
-      <!-- left navigation -->
-      <nav id="mapNav">
-        <a href="#"><i></i><strong style="display: none;"></strong><span>option</span></a>
-        <a href="#"><i></i><strong style="display: block;">1</strong><span>ADD PHOTO</span></a>
-        <a href="#"><i></i><strong style="display: block;">1</strong><span>option</span></a>
-        <a href="#"><i></i><strong style="display: none;"></strong><span>option</span></a>
-        <a href="#"><i></i><strong style="display: block;">1</strong><span>option</span></a>
-        <a href="#"><i></i><strong style="display: block;">m</strong><span>map</span></a>
-      </nav>
-      <!-- end left navigation -->
-      <!-- map -->
+    <!-- map -->
     <input id="search-box" class="controls" type="text" placeholder="Search Box">
     <div id="map-canvas"></div>
-    <div id="filmstrip" class="gradual"></div>
-    <div id="info-content">
+    <!-- left navigation -->
+    <nav id="map-nav" class="gradual visible-nav">
+      <a href="#"><i></i><strong></strong><span>option</span></a>
+      <a href="#"><i></i><strong>1</strong><span>add photo</span></a>
+      <a href="#"><i></i><strong>1</strong><span>option</span></a>
+      <a href="#"><i></i><strong></strong><span>option</span></a>
+      <a href="#"><i></i><strong>1</strong><span>read</span></a>
+      <a href="#"><i></i><strong>m</strong><span>map</span></a>
+    </nav>
+    <!-- end left navigation -->
+    <div id="info-content" class="">
       <table>
         <tr id="iw-url-row" class="iw_table_row">
           <td id="iw-icon" class="iw_table_icon"></td>
@@ -63,9 +58,6 @@
       </table>
       <img id="iw-photo" style="display:none;">
     </div>
-
-      <!-- end map -->
-    </section>
-
+    <!-- end map -->
   </body>
 </html>

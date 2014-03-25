@@ -494,29 +494,28 @@ body {
 }
 
 /* left navigation */
-.mapSec {
-    background:#9f987b;
-    height:100%;
-    width:100%
-    position: absolute;
-    left: 0;
-    top:0;
+.hidden-nav {
+    left: -64px;
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
-.mapSec nav {
+.visible-nav {
+    left: 0;
+    background-color: rgba(0, 0, 0, 1.0);
+}
+
+#map-nav {
     display:inline-block;
     width:74px;
-    background:#000;
     vertical-align:top;
     height:100%;
     margin-right:-3px;
     position: absolute;
-    left: 0;
     top: 0;
     z-index:3;
 }
 
-.mapSec nav a {
+#map-nav a {
     display:block;
     height:70px;
     position:relative;
@@ -525,7 +524,7 @@ body {
     text-align:center;
 }
 
-.mapSec nav strong {
+#map-nav strong {
     display:none;
     height:25px;
     width:25px;
@@ -542,10 +541,11 @@ body {
     -ms-border-radius:50%;
 }
 
-.mapSec nav span {
+#map-nav span {
     position:absolute;
     left:0;
     top:15px;
+    padding: 11px;
     font-size:14px;
     background:#FFF;
     text-transform:uppercase;
@@ -553,20 +553,19 @@ body {
     border:1px solid #d7d5d5;
     white-space:nowrap;
     opacity:0;
-    transition:opacity ease-in .5s left 1s;
-    -webkit-transition:opacity ease-in .5s left 1s;
-    -moz-transition:opacity ease-in .5s left 1s;
-    -o-transition:opacity ease-in .5s left 1s;
-    -ms-transition:opacity ease-in .5s left 1s;
-    padding:11px;
+    transition:opacity ease-in 0.5s, left 1s;
+    -webkit-transition:opacity ease-in 0.5s, left 1s;
+    -moz-transition:opacity ease-in 0.5s, left 1s;
+    -o-transition:opacity ease-in 0.5s, left 1s;
+    -ms-transition:opacity ease-in 0.5s, left 1s;
 }
 
-.mapSec a:hover span {
+#map-nav a:hover span {
     opacity:1;
     left:80px;
 }
 
-.mapSec nav span:before {
+#map-nav span:before {
     content:'';
     height:10px;
     width:7px;
@@ -576,7 +575,7 @@ body {
     top:14px;
 }
 
-.mapSec nav i {
+#map-nav i {
     display:inline-block;
     height:26px;
     width:29px;
@@ -584,30 +583,27 @@ body {
     background:url(/static/img/icons.png) -26px -269px no-repeat;
 }
 
-.mapSec nav a:nth-child(2) i {
+#map-nav a:nth-child(2) i {
     background-position:-63px -272px;
 }
 
-.mapSec nav a:nth-child(3) i {
+#map-nav a:nth-child(3) i {
     background-position:-110px -272px;
 }
 
-.mapSec nav a:nth-child(4) i {
+#map-nav a:nth-child(4) i {
     background-position:-152px -272px;
 }
 
-.mapSec nav a:nth-child(5) i {
+#map-nav a:nth-child(5) i {
     background-position:-183px -273px;
 }
 
-.mapSec nav a:nth-child(6) i {
+#map-nav a:nth-child(6) i {
     background-position:-219px -273px;
 }
 
-.mapSec #map-canvas {
+#map-canvas {
     height: 100%;
-    position: absolute;
-    left: 74px;
-    top: 0;
-    right: 0;
+    width: 100%;
 }
