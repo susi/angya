@@ -13,6 +13,7 @@ $(document).ready(function(){
 	// =========== variables ===============
   var mapOptions = {
     center: geoclocation,
+    mapTypeControl:false,
     zoom: 5
   };
 
@@ -67,7 +68,7 @@ $(document).ready(function(){
             updateNotifications();
         }
     });
-    $("#map-nav").removeClass("visible-nav").addClass("hidden-nav");
+    closeNavigation();
 
   widgetLoader = new XMLHttpRequest();
   widgetLoader.onreadystatechange = function() {
@@ -107,6 +108,31 @@ function updateNotifications(event){
     });
 }
 
+function hideNotifications(event){
+    notiContent = $('#map-nav a strong');
+    notiContent.each(function(){
+	    innerInfo = $(this).text();
+	    $(this).css('display','none');
+    });
+}
+
+function closeNavigation() {
+  $("#map-nav").removeClass("visible-nav").addClass("hidden-nav");
+  hideNotifications();
+  
+}
+
+function swapMapType() {
+  currentType = map.getMapTypeId();
+  if (currentType == google.maps.MapTypeId.ROADMAP) {
+    map.setMapTypeId(google.maps.MapTypeId.HYBRID);
+    $('#map-nav #map-type strong').html('s');
+  }
+  else {
+    map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
+    $('#map-nav #map-type strong').html('m');
+  }
+}
 
 function widgetHover() {
     widgetDiv = document.getElementById('login');
