@@ -2,6 +2,7 @@ runtime: python27
 version: master-2013-03-23
 api_version: 1
 threadsafe: true
+application: angya-travel
 
 handlers:
 - url: .*
