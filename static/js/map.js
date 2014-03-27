@@ -195,12 +195,13 @@ function placeMarkersOnMap(places) {
     for (var i = 0, place; place = places[i]; i++) {
         // Marker icon
         var image = {
-            url: place.icon,
-            size: new google.maps.Size(71, 71),
+            url: /*place.icon,*/'static/img/icons/16.png',  // Use custom icon for all places
+            size: new google.maps.Size(71, 71), 
             origin: new google.maps.Point(0, 0),
             anchor: new google.maps.Point(9, 9),
-            scaledSize: new google.maps.Size(18, 18)
+            scaledSize: new google.maps.Size(28, 38)
         };
+      
         // Create a marker for each place.
         var marker = new google.maps.Marker({
             map: map,
@@ -271,6 +272,16 @@ function buildPlaceIW(place) {
         'src="' + place.icon + '"/>';
     document.getElementById('iw-url').innerHTML = '<b><a href="' + place.url +
         '">' + place.name + '</a></b>';
+
+// Add types of places to info window
+    var types ='';
+    for (i = 0; i < place.types.length; i++) {
+        if (i != 0)
+           types = types + '; ';
+        types = types + place.types[i];
+    }
+    document.getElementById('iw-types').innerHTML = types;
+
     document.getElementById('iw-address').textContent = place.vicinity;
 
     if (place.formatted_phone_number) {
