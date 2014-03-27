@@ -195,7 +195,7 @@ function placeMarkersOnMap(places) {
     for (var i = 0, place; place = places[i]; i++) {
         // Marker icon
         var image = {
-            url: /*place.icon,*/'static/img/icons/16.png',  // Use custom icon for all places
+            url: /*place.icon,*/'static/img/icons/16.png',  
             size: new google.maps.Size(71, 71), 
             origin: new google.maps.Point(0, 0),
             anchor: new google.maps.Point(9, 9),
@@ -268,18 +268,23 @@ function getPlaceDetails() {
 function buildPlaceIW(place) {
     document.body.appendChild(infoWindowContent);
     console.log("buildPlaceIW("+place.name+")");
-    document.getElementById('iw-icon').innerHTML = '<img class="hotelIcon" ' +
-        'src="' + place.icon + '"/>';
-    document.getElementById('iw-url').innerHTML = '<b><a href="' + place.url +
-        '">' + place.name + '</a></b>';
 
-// Add types of places to info window
+    // Add types of places to info window
     var types ='';
     for (i = 0; i < place.types.length; i++) {
         if (i != 0)
            types = types + '; ';
         types = types + place.types[i];
     }
+
+    // Customize place icon   
+    customizePlaceIcon(place, types);
+
+    document.getElementById('iw-icon').innerHTML = '<img class="hotelIcon" ' +
+        'src="' + place.icon + '"/>';
+    document.getElementById('iw-url').innerHTML = '<b><a href="' + place.url +
+        '">' + place.name + '</a></b>';
+
     document.getElementById('iw-types').innerHTML = types;
 
     document.getElementById('iw-address').textContent = place.vicinity;
@@ -327,4 +332,18 @@ function buildPlaceIW(place) {
     else {
         document.getElementById('iw-photo').style.display = 'none';
     }
+}
+
+// Customizes icon according to type of place
+function customizePlaceIcon (place, types){
+    if (-1 != types.indexOf("cafe") || -1 != place.name.indexOf("cafe") )
+        place.icon = 'static/img/icons/6.png';
+    else 
+        if (-1 != types.indexOf("restaurant") || -1 != types.indexOf("food")  )
+            place.icon = 'static/img/icons/7.png';
+        else 
+            if (-1 != types.indexOf("hotel")   )
+                place.icon = 'static/img/icons/9.png';
+            else 
+                place.icon = 'static/img/icons/8.png';
 }
