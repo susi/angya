@@ -1,0 +1,46 @@
+/**
+  * This fie loads the widgets and contains some helper functions common to
+  * all widgets.
+  */
+// The loginButton
+var loginButton;
+// The left navigation bar
+var nav;
+
+function loadWidgets() {
+  $.getJSON( "/widgets/nav", function( widget ) {
+    loadCSSFile(widget.css);
+     $.getScript(widget.js)
+     .done(function(script, textStatus) {
+       nav = new Navigation($(document.body), widget.buttons);
+     })
+     .fail(function(jqxhr, settings, exception) {
+       console.log("Triggered ajaxError handler.");
+       console.log(exception.stack);
+       console.log(exception.message);
+     });
+   });
+
+   $.getJSON( "/widgets/login", function( widget ) {
+     var div = document.createElement('div');
+     div.innerHTML = widget.html;
+     loadCSSFile(widget.css);
+     $.getScript(widget.js)
+     .done(function(script, textStatus) {
+       loginButton = new LoginButton(div, widget.position);
+     })
+     .fail(function(jqxhr, settings, exception) {
+       console.log("Triggered ajaxError handler.");
+       console.log(exception.stack);
+       console.log(exception.message);
+     });
+   });
+}
+
+function loadCSSFile(url) {
+  $("<link>", {
+       rel:  "stylesheet",
+       type: "text/css",
+       href: url
+    }).appendTo("head");
+}

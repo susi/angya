@@ -1,4 +1,4 @@
-function LeftNavigation(parent, buttons) {
+function Navigation(parent, buttons) {
   var items = [];
   $.each(buttons, function( id, button ) {
       console.log('Adding button ' + button.name + ': ' + button.hint);

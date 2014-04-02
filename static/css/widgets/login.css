@@ -1,0 +1,69 @@
+/** login widget */
+#login {
+  background: white;
+  position:relative;
+  font-family: 'PT Sans', sans-serif;
+  font-size: 12px;
+  width: 300px;
+}
+
+#login > a {
+  -moz-transition:background-color .5s;
+  -o-transition:background-color .5s;
+  -webkit-transition:background-color .5s;
+  background:url(/static/img/icons.png) 79px -7px no-repeat;
+  background-color:#d0d0d0;
+  color:#000;
+  display:inline-block;
+  float:right;
+  font-size:16px;
+  letter-spacing:2px;
+  padding:15px;
+  text-transform:uppercase;
+  transition:background-color .5s;
+  width:100px;
+}
+
+#login > a#loginRegister {
+  background-position:79px -67px;
+}
+
+#login > a:hover {
+  background-color:#ffd420;
+}
+
+#login > div {
+  vertical-align: top;
+  background-color: white;
+  padding: 8px 15px;
+  border: 1px solid #e5e5e5;
+  width: 100px;
+}
+
+.userIcon {
+  width: 45px;
+  height: 45px;
+  display: inline-block;
+  background: url(/static/img/icons.png) -165px -139px;
+  padding-right: 5px;
+  margin-top: 2px;
+  margin-left: 5px;
+  padding-top: 2px;
+}
+
+
+.welcome {
+  vertical-align: top;
+  background-color: white;
+  width: 100px;
+  margin-left: 50px;
+}
+
+#loginGreeting {
+  padding-left: 50px;
+  width: 150px;
+  height: 45px;
+  display: inline-block;
+  background: url(/static/img/icons.png) -165px -139px;
+}
+

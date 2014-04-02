@@ -5,7 +5,6 @@ var infoWindowContent; // The element which holds the current info window conten
 var infoWindow; // The InfoWindow object.
 var markers = [];
 var lastUpdate;
-var loginButton;
 
 $(document).ready(function(){
   geolocate();
@@ -61,39 +60,7 @@ $(document).ready(function(){
       lastUpdate=now;
     }
   });
-
-   $.getJSON( "/widgets/nav", function( widget ) {
-     console.log(widget)
-      $.getScript(widget.js)
-      .done(function(script, textStatus) {
-        console.log(script);
-        console.log(textStatus);
-        loginButton = new LeftNavigation($(document.body), widget.buttons);
-      })
-      .fail(function(jqxhr, settings, exception) {
-        console.log("Triggered ajaxError handler.");
-        console.log(exception.stack);
-        console.log(exception.message);
-      });
-    });
-
-    $.getJSON( "/widgets/login", function( widget ) {
-      var div = document.createElement('div');
-      div.innerHTML = widget.html;
-      console.log('fetching ' + widget.js)
-      $.getScript(widget.js)
-      .done(function(script, textStatus) {
-        console.log(script);
-        console.log(textStatus);
-        loginButton = new LoginButton(div, widget.position);
-      })
-      .fail(function(jqxhr, settings, exception) {
-        console.log("Triggered ajaxError handler.");
-        console.log(exception.stack);
-        console.log(exception.message);
-      });
-    });
-
+  loadWidgets();
 });
 
 

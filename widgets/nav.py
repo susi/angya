@@ -24,6 +24,7 @@ class Navigation(object):
     widget = {
       'name': 'left-nav',
       'buttons': buttons,
-      'js': flask.url_for('static', filename='js/widgets/nav.js')
+      'js': flask.url_for('static', filename='js/widgets/nav.js'),
+      'css': flask.url_for('static', filename='css/widgets/nav.css')
     }
     return flask.jsonify(**widget)

@@ -19,14 +19,13 @@ class LoginButton(object):
                                                    user=self.user.email(),
                                                    button_text='logout',
                                                    url=users.create_logout_url('/map'))
-            button['position'] = 'TOP_RIGHT'
-            button['js'] = flask.url_for('static', filename='js/widgets/login.js')
         else:
             button['name'] = 'login'
             button['html'] = flask.render_template('widgets/login.html',
                                                     button_text='login',
                                                     url=users.create_login_url('/map'))
-            button['position'] = 'TOP_RIGHT'
-            button['js'] = flask.url_for('static', filename='js/widgets/login.js')
+        button['position'] = 'TOP_RIGHT'
+        button['js'] = flask.url_for('static', filename='js/widgets/login.js')
+        button['css'] = flask.url_for('static', filename='css/widgets/login.css')
 
         return flask.jsonify(**button)

@@ -1,0 +1,105 @@
+/******************** left navigation ********************/
+.hidden-nav {
+    left: -64px;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.visible-nav {
+    left: 0;
+    background-color: rgba(0, 0, 0, 1.0);
+}
+
+#map-nav {
+    display:inline-block;
+    width:74px;
+    vertical-align:top;
+    height:100%;
+    margin-right:-3px;
+    position: absolute;
+    top: 0;
+    z-index:3;
+}
+
+#map-nav a {
+    display:block;
+    height:70px;
+    position:relative;
+    color:#000;
+    z-index:1;
+    text-align:center;
+}
+
+#map-nav strong {
+    display:none;
+    height:25px;
+    width:25px;
+    background:#ffd420;
+    position:absolute;
+    top:0;
+    right:-8px;
+    text-align:center;
+    line-height:25px;
+    border-radius:50%;
+    -webkit-border-radius:50%;
+    -moz-border-radius:50%;
+    -o-border-radius:50%;
+    -ms-border-radius:50%;
+}
+
+#map-nav span {
+    position:absolute;
+    left:0;
+    top:15px;
+    padding: 11px;
+    font-size:14px;
+    background:#FFF;
+    text-transform:uppercase;
+    font-weight:700;
+    border:1px solid #d7d5d5;
+    white-space:nowrap;
+    opacity:0;
+    transition:opacity ease-in 0.5s, left 1s;
+    -webkit-transition:opacity ease-in 0.5s, left 1s;
+    -moz-transition:opacity ease-in 0.5s, left 1s;
+    -o-transition:opacity ease-in 0.5s, left 1s;
+    -ms-transition:opacity ease-in 0.5s, left 1s;
+}
+
+#map-nav a:hover span {
+    opacity:1;
+    left:80px;
+}
+
+#map-nav span:before {
+    content:'';
+    height:10px;
+    width:7px;
+    background:url(/static/img/icons.png) 0 -274px;
+    position:absolute;
+    left:-7px;
+    top:14px;
+}
+
+#map-nav i {
+    display:inline-block;
+    height:26px;
+    width:29px;
+    margin-top:30%;
+    background:url(/static/img/icons.png) -26px -269px no-repeat;
+}
+
+#map-nav a#camera i{
+    background-position:-63px -272px;
+}
+#map-nav a#write i{
+    background-position:-110px -272px;
+}
+#map-nav a#marker i{
+    background-position:-152px -272px;
+}
+#map-nav a#text i{
+    background-position:-183px -273px;
+}
+#map-nav a#map-type i{
+    background-position:-219px -273px;
+}
