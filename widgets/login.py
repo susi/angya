@@ -5,8 +5,7 @@ import flask
 from google.appengine.api import users
 
 class LoginButton(object):
-    """The LoginButton returns a login button widget.
-    It can also render a signup button."""
+    """The LoginButton returns a login/register button widget."""
 
     def __init__(self, app):
         self.user = users.get_current_user()

@@ -62,87 +62,40 @@ $(document).ready(function(){
     }
   });
 
-    $("#map-nav").mouseenter(function() {
-        if($(this).hasClass("hidden-nav")) {
-            $(this).removeClass("hidden-nav").addClass("visible-nav");
-            updateNotifications();
-        }
+   $.getJSON( "/widgets/nav", function( widget ) {
+     console.log(widget)
+      $.getScript(widget.js)
+      .done(function(script, textStatus) {
+        console.log(script);
+        console.log(textStatus);
+        loginButton = new LeftNavigation($(document.body), widget.buttons);
+      })
+      .fail(function(jqxhr, settings, exception) {
+        console.log("Triggered ajaxError handler.");
+        console.log(exception.stack);
+        console.log(exception.message);
+      });
     });
-    closeNavigation();
 
-  widgetLoader = new XMLHttpRequest();
-  widgetLoader.onreadystatechange = function() {
-    if ((widgetLoader.readyState==4) && (widgetLoader.status==200)) {
-      var widget = JSON.parse(widgetLoader.responseText);
+    $.getJSON( "/widgets/login", function( widget ) {
       var div = document.createElement('div');
       div.innerHTML = widget.html;
       console.log('fetching ' + widget.js)
       $.getScript(widget.js)
-        .done(function(script, textStatus) {
-          console.log(script);
-          console.log(textStatus);
-          loginButton = new LoginButton(div, widget.position);
-        })
-        .fail(function(jqxhr, settings, exception) {
-          console.log("Triggered ajaxError handler.");
-          console.log(exception.stack);
-          console.log(exception.message);
-        });
-    }
-  };
-  widgetLoader.open("GET", "/widgets/login", true);
-  widgetLoader.send(null);
+      .done(function(script, textStatus) {
+        console.log(script);
+        console.log(textStatus);
+        loginButton = new LoginButton(div, widget.position);
+      })
+      .fail(function(jqxhr, settings, exception) {
+        console.log("Triggered ajaxError handler.");
+        console.log(exception.stack);
+        console.log(exception.message);
+      });
+    });
 
 });
 
-// map navigation number notification content test
-function updateNotifications(event){
-    notiContent = $('#map-nav a strong');
-    notiContent.each(function(){
-	innerInfo = $(this).text();
-	if (innerInfo===''){
-	    $(this).css('display','none');
-	}else{
-	    $(this).css('display','block');
-	}
-    });
-}
-
-function hideNotifications(event){
-    notiContent = $('#map-nav a strong');
-    notiContent.each(function(){
-	    innerInfo = $(this).text();
-	    $(this).css('display','none');
-    });
-}
-
-function closeNavigation() {
-  $("#map-nav").removeClass("visible-nav").addClass("hidden-nav");
-  hideNotifications();
-  
-}
-
-function swapMapType() {
-  currentType = map.getMapTypeId();
-  if (currentType == google.maps.MapTypeId.ROADMAP) {
-    map.setMapTypeId(google.maps.MapTypeId.HYBRID);
-    $('#map-nav #map-type strong').html('s');
-  }
-  else {
-    map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
-    $('#map-nav #map-type strong').html('m');
-  }
-}
-
-function widgetHover() {
-    widgetDiv = document.getElementById('login');
-    if (widgetDiv.className.indexOf('inactive') != -1) {
-        widgetDiv.className = 'widget active';
-    }
-    else {
-        widgetDiv.className = 'widget inactive';
-    }
-}
 
 function photoClicked(photoLocation) {
     placesSrv.nearbySearch(
