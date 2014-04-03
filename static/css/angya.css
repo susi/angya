@@ -447,16 +447,6 @@ body {
     overflow: hidden;
 }
 
-#search-box {
-    background-color: #fff;
-    padding: 0 12px 0 14px;
-    width: 400px;
-    font-family: Roboto;
-    font-size: 17px;
-    font-weight: 300;
-    text-overflow: ellipsis;
-}
-
 .controls {
     margin-top: 16px;
     border: 1px solid transparent;

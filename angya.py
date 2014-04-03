@@ -9,6 +9,7 @@ import flask
 import map #handles the /map url
 import widgets.login
 import widgets.nav
+import widgets.search
 
 # Create a fals application.
 app = flask.Flask(__name__)
@@ -23,6 +24,11 @@ def map_handler():
     """Creates a Map object and renders it."""
     map_app = map.Map(app);
     return map_app.render()
+
+@app.route('/widgets/search')
+def search_handler():
+    search = widgets.search.Search(app)
+    return search.render()
 
 @app.route('/widgets/login')
 def login_handler():

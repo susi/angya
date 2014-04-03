@@ -6,6 +6,8 @@
 var loginButton;
 // The left navigation bar
 var nav;
+// The search form
+var search;
 
 function loadWidgets() {
   $.getJSON( "/widgets/nav", function( widget ) {
@@ -28,6 +30,22 @@ function loadWidgets() {
      $.getScript(widget.js)
      .done(function(script, textStatus) {
        loginButton = new LoginButton(div, widget.position);
+     })
+     .fail(function(jqxhr, settings, exception) {
+       console.log("Triggered ajaxError handler.");
+       console.log(exception.stack);
+       console.log(exception.message);
+     });
+   });
+
+   $.getJSON( "/widgets/search", function( widget ) {
+     var div = document.createElement('div');
+     div.innerHTML = widget.html;
+     div.className = 'search';
+     loadCSSFile(widget.css);
+     $.getScript(widget.js)
+     .done(function(script, textStatus) {
+       search = new Search(map, div, widget.position);
      })
      .fail(function(jqxhr, settings, exception) {
        console.log("Triggered ajaxError handler.");

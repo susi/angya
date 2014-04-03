@@ -1,0 +1,62 @@
+.search {
+    background-color: #ededed;
+    padding: 10px;
+    font-size: 30px;
+    font-weight: 300;
+}
+
+#search-box {
+  background: #ffd420;
+  color: black;
+  padding: 17px;
+  font-size: 24px;
+  margin-right: 16px;
+  width: 353px;
+  text-overflow: ellipsis;
+}
+
+#search-submit {
+  width: 81px;
+  height: 55px;
+  text-indent: -9999px;
+  background-color: #ededed;
+  background: url(/static/img/icons.png) -226px -139px;
+}
+
+.pac-container {
+  background-color: #ededed;
+  font-size: 25px;
+  font-weight: 300;
+  border-color: #ffd420;
+}
+
+.pac-item {
+  background-color: #ededed;  
+  font-size: 20px;
+  font-weight: 300;
+  border-color: #ffd420;
+  color: #a0a0a0;
+}
+
+.pac-item:hover {
+  background-color: #ffd420;  
+  font-size: 20px;
+  font-weight: 200;
+  border-color: #ffd420;
+}
+
+.pac-item-selected {
+  background-color: #ffd420;  
+  font-size: 20px;
+  font-weight: 300;  
+  border-color: #ffd420;
+}
+
+.pac-item-query {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.pac-matched {
+  font-weight: 700;
+}
