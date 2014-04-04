@@ -1,5 +1,5 @@
 runtime: python27
-version: master-2013-04-03
+version: infocard
 api_version: 1
 threadsafe: true
 application: angya-travel
