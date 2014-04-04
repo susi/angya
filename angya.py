@@ -7,6 +7,7 @@ import flask
 
 #local URL handlers
 import map #handles the /map url
+import widgets.infocard
 import widgets.login
 import widgets.nav
 import widgets.search
@@ -39,6 +40,11 @@ def login_handler():
 def nav_handler():
     nav = widgets.nav.Navigation(app)
     return nav.render()
+
+@app.route('/widgets/infocard')
+def infocard_handler():
+    infocard = widgets.infocard.Infocard(app)
+    return infocard.render()
 
 
 if __name__ == '__main__':

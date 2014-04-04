@@ -8,6 +8,7 @@ var loginButton;
 var nav;
 // The search form
 var search;
+var infocard;
 
 function loadWidgets() {
   $.getJSON( "/widgets/nav", function( widget ) {
@@ -22,6 +23,19 @@ function loadWidgets() {
        console.log(exception.message);
      });
    });
+
+   $.getJSON( "/widgets/infocard", function( widget ) {
+     loadCSSFile(widget.css);
+      $.getScript(widget.js)
+      .done(function(script, textStatus) {
+        infocard = new Infocard($(document.body));
+      })
+      .fail(function(jqxhr, settings, exception) {
+        console.log("Triggered ajaxError handler.");
+        console.log(exception.stack);
+        console.log(exception.message);
+      });
+    });
 
    $.getJSON( "/widgets/login", function( widget ) {
      var div = document.createElement('div');
@@ -53,6 +67,7 @@ function loadWidgets() {
        console.log(exception.message);
      });
    });
+   
 }
 
 function loadCSSFile(url) {

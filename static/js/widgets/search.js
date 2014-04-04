@@ -32,7 +32,7 @@ function Search(map, div, position) {
   // Listen for the event fired when the user selects an item from the
   // pick list. Retrieve the matching places for that item.
   google.maps.event.addListener(searchBox, 'places_changed', function() {
-    infoWindow.close();
+    infocard.close();
     var places = searchBox.getPlaces();
     if (places) {
       placeMarkersOnMap(places);
@@ -92,7 +92,7 @@ function placeMarkersOnMap(places) {
     map.fitBounds(bounds);
 }
 
-// Get the detailed information of a place and show it in the infoWindow
+// Get the detailed information of a place and show it in the infocard
 function getPlaceDetails() {
     marker = this;
     placesSrv.getDetails(
@@ -103,10 +103,10 @@ function getPlaceDetails() {
                 return;
             }
             buildPlaceIW(place);
-            console.log(marker.getPosition().toString());
-            infoWindow.open(map);
-            infoWindow.setPosition(marker.getPosition());
-            console.log(infoWindow.getPosition().toString());
+            infocard.setHeader(place.name);
+            infocard.setContents(infoWindowContent.innerHTML);
+            infocard.resize(300, 200)
+            infocard.open();
         });
 }
 

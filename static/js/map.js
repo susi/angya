@@ -1,7 +1,6 @@
 var map;
 var geoclocation = new google.maps.LatLng(0, 0);
 var infoWindowContent; // The element which holds the current info window content
-var infoWindow; // The InfoWindow object.
 var markers = [];
 var lastUpdate;
 
@@ -19,13 +18,7 @@ $(document).ready(function(){
   map = new google.maps.Map(document.getElementById("map-canvas"),
                             mapOptions);
 
-  // Infowindow
   infoWindowContent = document.getElementById('info-content');
-  infoWindow = new google.maps.InfoWindow({
-      content: infoWindowContent,
-      map: map
-  });
-  infoWindow.close();
 
 	// =========== functions ===============
   // get the user's location
