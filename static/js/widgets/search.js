@@ -104,7 +104,7 @@ function getPlaceDetails() {
             }
             buildPlaceIW(place);
             infocard.setHeader(place.name);
-            infocard.setContents(infoWindowContent.innerHTML);
+            infocard.setContents(infoWindowContent);
             infocard.resize(250, 350)
             infocard.open();
         });
