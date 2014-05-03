@@ -14,6 +14,7 @@ class Navigation(object):
 
     buttons = [
       {'name': 'close', 'url': 'javascript:closeNavigation()', 'hint': 'close'},
+      {'name': 'trip', 'url': 'javascript:tripmanager.listTrips()', 'hint': 'my trips'},
       {'name': 'camera', 'url': 'javascript:alert("Add photo!")', 'hint': 'add photo'},
       {'name': 'write', 'url': 'javascript:alert("Write review...")', 'hint': 'add impression'},
       {'name': 'text', 'url': 'javascript:alert("Add a review")', 'hint': 'add review'},

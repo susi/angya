@@ -11,6 +11,7 @@ import widgets.infocard
 import widgets.login
 import widgets.nav
 import widgets.search
+import widgets.timeline
 
 # Create a fals application.
 app = flask.Flask(__name__)
@@ -45,6 +46,12 @@ def nav_handler():
 def infocard_handler():
     infocard = widgets.infocard.Infocard(app)
     return infocard.render()
+
+@app.route('/widgets/timeline')
+@app.route('/widgets/timeline/<trip_id>')
+def timeline_handler(trip_id=None):
+    timeline = widgets.timeline.Timeline(app)
+    return timeline.render(trip_id)
 
 
 if __name__ == '__main__':

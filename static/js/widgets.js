@@ -9,6 +9,7 @@ var nav;
 // The search form
 var search;
 var infocard;
+var tripmanager;
 
 function loadWidgets() {
   $.getJSON( "/widgets/nav", function( widget ) {
@@ -67,7 +68,20 @@ function loadWidgets() {
        console.log(exception.message);
      });
    });
-   
+
+   $.getJSON( "/widgets/timeline", function( widget ) {
+     loadCSSFile(widget.css);
+      $.getScript(widget.js)
+      .done(function(script, textStatus) {
+          tripmanager = new TripManager($(document.body), infocard, widget.trips);
+      })
+      .fail(function(jqxhr, settings, exception) {
+        console.log("Triggered ajaxError handler.");
+        console.log(exception.stack);
+        console.log(exception.message);
+      });
+    });
+
 }
 
 function loadCSSFile(url) {
