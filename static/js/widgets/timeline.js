@@ -82,6 +82,9 @@ Timeline.prototype.popdown = function()
 {
     $(this.div).css('bottom','-80px');
     this.timeline.empty();
+    for (i in this.markers) {
+        this.markers[i].setMap(null);
+    }
 };
 
 Timeline.prototype.setHeader = function(newHeader)
@@ -101,6 +104,10 @@ Timeline.prototype.clearLocations = function()
     this.destinations = [];
     this.timeline.empty();
     this.trip_duration = 0;
+    for (i in this.markers) {
+        this.markers[i].setMap(null);
+    }
+    this.markers = [];
 };
 
 Timeline.prototype.setTrip = function(trip)
@@ -118,8 +125,9 @@ Timeline.prototype.draw = function()
 {
     this.timeline.empty();
     var timeline_width = this.div.width() - this.title.outerWidth();
-    
     var left_space = this.title.outerWidth();
+    var bounds = new google.maps.LatLngBounds();
+    this.markers = [];
     for(i in this.destinations) {
         if((i > 0) && (this.trip_duration != 0)) { // space comes after
             // calculate the space before based on the duration of the
@@ -137,5 +145,21 @@ Timeline.prototype.draw = function()
             .html(place.date + ' ' + place.duration + '&nbsp;days')
             .appendTo(div);
         $(div).appendTo(this.timeline);
+        var image = {
+            url: '/static/img/icons/16.png',
+            scaledSize: new google.maps.Size(24, 32),
+        };
+
+        var marker = new google.maps.Marker({
+            animation: google.maps.Animation.DROP,
+            map: map,
+            position: new google.maps.LatLng(place.location[0],
+                                            place.location[1]),
+            icon: image,
+            title: place.name
+        });
+        this.markers.push(marker);
+        bounds.extend(marker.getPosition());
+        map.fitBounds(bounds);
     }
 };
