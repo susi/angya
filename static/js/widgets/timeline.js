@@ -38,12 +38,7 @@ TripManager.prototype.showTrip = function(trip_id)
         if(trip) {
             tripmanager.selected_trip = trip;
             infocard.close();
-            tripmanager.timeline.setHeader(trip.name);
-            tripmanager.timeline.clearLocations();
-            for(i in trip.locations) {
-                var place = trip.locations[i];
-                tripmanager.timeline.addLocation(place);
-            }
+            tripmanager.timeline.setTrip(trip);
             tripmanager.timeline.popup();
         }
         else {
@@ -59,9 +54,9 @@ function Timeline(parent)
             id: "timeline",
             class: "gradual"
         })
-        .mouseenter(this, function(e) {
-            e.data.popup();
-        })
+//        .mouseenter(this, function(e) {
+//            e.data.popup();
+//        })
         .click(this, function(e) {
             e.data.popdown();
         })
@@ -108,6 +103,17 @@ Timeline.prototype.clearLocations = function()
     this.trip_duration = 0;
 };
 
+Timeline.prototype.setTrip = function(trip)
+{
+    this.trip = trip;
+    this.setHeader(trip.name);
+    this.clearLocations();
+    for(i in trip.locations) {
+        var place = trip.locations[i];
+        this.addLocation(place);
+    }
+};
+
 Timeline.prototype.draw = function()
 {
     this.timeline.empty();
@@ -116,14 +122,12 @@ Timeline.prototype.draw = function()
     var left_space = this.title.outerWidth();
     for(i in this.destinations) {
         if((i > 0) && (this.trip_duration != 0)) { // space comes after
-            console.log("trip time: " + this.destinations[i-1].duration);
-            console.log("timeline_width: " + timeline_width);
-            console.log("trip duration: " + this.trip_duration);
+            // calculate the space before based on the duration of the
+            // stay in the previous place
             left_space += Math.floor((this.destinations[i-1].duration * 60) *
                          (timeline_width/this.trip_duration));
         }
         var place = this.destinations[i];
-        console.log(place.name + " left_space: " + left_space + "px");
         var div = $('<div>').css('left',left_space + 'px');
         var i = $('<i>').appendTo(div);
         var strong = $('<strong>')
