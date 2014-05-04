@@ -68,7 +68,7 @@ class NdbJSONEncoder(json.JSONEncoder):
         if isinstance(o, ndb.Model):
             return o.to_dict
         elif isinstance(o, ndb.GeoPt):
-            return (o.lat, o.lon)
+            return {'lat':o.lat, 'lng':o.lon}
         elif isinstance(o, (ndb.Key,datetime.date, datetime.datetime)):
             return str(o)  # Or whatever other date format you're OK with...
         else:

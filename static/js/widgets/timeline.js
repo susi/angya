@@ -85,6 +85,9 @@ Timeline.prototype.popdown = function()
     for (i in this.markers) {
         this.markers[i].setMap(null);
     }
+    for (i in this.travelpaths) {
+        this.travelpaths[i].setMap(null);
+    }
 };
 
 Timeline.prototype.setHeader = function(newHeader)
@@ -107,7 +110,11 @@ Timeline.prototype.clearLocations = function()
     for (i in this.markers) {
         this.markers[i].setMap(null);
     }
+    for (i in this.travelpaths) {
+        this.travelpaths[i].setMap(null);
+    }
     this.markers = [];
+    this.travelpaths = [];
 };
 
 Timeline.prototype.setTrip = function(trip)
@@ -153,13 +160,38 @@ Timeline.prototype.draw = function()
         var marker = new google.maps.Marker({
             animation: google.maps.Animation.DROP,
             map: map,
-            position: new google.maps.LatLng(place.location[0],
-                                            place.location[1]),
+            position: place.location,
             icon: image,
             title: place.name
         });
         this.markers.push(marker);
         bounds.extend(marker.getPosition());
         map.fitBounds(bounds);
+    }
+    this.travelpaths = [];
+    for (i in this.trip.travel) {
+        var trip = this.trip.travel[i];
+        var color = '';
+        if (trip.mode == 'plane')
+            color='red';
+        else if (trip.mode == 'boat')
+            color='blue';
+        else if (trip.mode == 'train')
+            color='green';
+        else if (trip.mode == 'car')
+            color='orange';
+        else
+            color='black';
+
+        var polyline = new google.maps.Polyline({
+            geodesic: (trip.mode == 'plane'),
+            map: map,
+            path: [
+                new google.maps.LatLng(trip.origin.lat, trip.origin.lng),
+                new google.maps.LatLng(trip.destination.lat,
+                                       trip.destination.lng)],
+            strokeColor: color
+        });
+        this.travelpaths.push(polyline);
     }
 };
