@@ -1,0 +1,62 @@
+#timeline-container {
+    background-color: rgba(255, 255, 255, .85);
+    width: 100%;
+    height: 70px;
+    position: abolute;
+    left: 0;
+    bottom: -65px;
+}
+
+#timeline {
+    background-color: rgba(255, 255, 255, .85);
+    position: absolute;
+    margin-top: 31px;
+    width: 100%;
+    height:66px;
+}
+/*time line style*/
+#timeline hr {
+    height: 1px;
+    background: #666;
+}
+
+#timeline h3 {
+    font-size: 29px;
+    text-transform: uppercase;
+    font-weight: 100;
+    display: inline-block;
+    padding-right: 10px;
+    padding-top: 18px;
+    padding-left: 11px;
+}
+
+#timeline-labels {
+    position: absolute;
+    text-align: center;
+    top:-7px;
+}
+
+#timeline-labels div {
+    display: inline-block;
+    position: absolute;
+    left: 0px;
+    width: 110px
+}
+/* this is the "dot" on the timeline */
+#timeline-labels i {
+    height: 14px;
+    width: 14px;
+    background: #4e4e4e;
+    border-radius: 50%;
+    display: inline-block;
+}
+#timeline-labels strong {
+    font-size: 16px;
+    display: block;
+}
+#timeline-labels small {
+    display: block;
+    font-size: 14px;
+    color: #999999;
+    font-weight: bold
+}
