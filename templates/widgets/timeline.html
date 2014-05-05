@@ -2,39 +2,14 @@
 <div>
   <p>You need to log in before you can plan trips.</p>
 </div>
-{% else %}{% if not trips %}
-<div>
-  <form action="#" onsubmit="timeline_create_new()">
-    Trip name: <input name="name" type="text"><br>
-    Choose origin <a href="javascript:timeline_set_origin()">#</a><br>
-    Choose destination <a href="javascript:timeline_set_origin()">#</a><br>
-    Add waypoint <a href="javascript:timeline_set_origin()">#</a><br>
+{% else %}
+<div id="new-trip">
+  <form action="#" onsubmit="tripmanager.saveTrip()">
+    Trip name: <input id="trip-name" name="name"
+                      type="text" value="unnamed trip"><br>
+    <a href="javascript:tripmanager.setOrigin()">Choose origin</a><br>
+    <a href="javascript:tripmanager.addDest()">Add destination</a><br>
     <input type="submit" value="submit">
   </form>
-</div>
-{% else %}{%if not trip_id %}
-<div>
-  <ul>
-    {% for trip in trips %}
-    <li><a href="#timeline{{trip.key}}">{{trip.name}}</a></li>
-    {% endfor %}
-  </ul>
-</div>
-{% else %}
-<div class="timeLine"><!-- sn: this is relative-->
-  <!-- time line container -->
-  <div>
-    <hr>
-    <h3>{{trip.name}}</h3>
-  </div>
-  <div class="timeLineLabels"><!-- sn: this is absolute -->
-    {% for location in locations %}
-    <div><!-- sn: these are absolute-->
-      <i></i>
-      <strong>{{location.name}}</strong>
-      <small>{{location.date}} - {{location.duration}} days</small>
-    </div>
-    {% endfor %}
-  </div>
 </div>
 {% endif %}

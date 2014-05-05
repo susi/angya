@@ -61,6 +61,10 @@ class Timeline(object):
             }
             return flask.jsonify(**widget)
 
+    def render_trip_form(self):
+        return flask.render_template('widgets/timeline.html',
+                                     user=self.user)
+
 
 class NdbJSONEncoder(json.JSONEncoder):
     def default(self, o):

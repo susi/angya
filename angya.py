@@ -51,7 +51,10 @@ def infocard_handler():
 @app.route('/widgets/timeline/<trip_id>')
 def timeline_handler(trip_id=None):
     timeline = widgets.timeline.Timeline(app)
-    return timeline.render(trip_id)
+    if trip_id == 'new':
+        return timeline.render_trip_form()
+    else:
+        return timeline.render(trip_id)
 
 
 if __name__ == '__main__':

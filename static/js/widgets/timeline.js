@@ -7,6 +7,7 @@ function TripManager(parent, infocard, trips)
 
 TripManager.prototype.listTrips = function()
 {
+    closeNavigation();
     infocard.close();
     infocard.setHeader('My trips');
     var ul = $('<ul>');
@@ -28,7 +29,23 @@ TripManager.prototype.listTrips = function()
 
 TripManager.prototype.createTrip = function()
 {
-    infocard.open();
+    var tripmanager = this;
+    tripmanager.selected_trip = {name: 'unnamed trip', owner: '',
+                                 locations: [], travel: []};
+    $.get( "/widgets/timeline/new", function( form ) {
+        infocard.close();
+        infocard.setHeader('Create Trip');
+        infocard.setContents(form);
+        infocard.open();
+        tripmanager.timeline.setTrip(tripmanager.selected_trip);
+        tripmanager.timeline.popup();
+        $('#new-trip form input[name=name]')
+            .keyup(function() {
+                tripmanager.timeline.setHeader(
+                    $('#new-trip form input[name=name]').val())
+            })
+            .focus();
+    });
 };
 
 TripManager.prototype.showTrip = function(trip_id)
