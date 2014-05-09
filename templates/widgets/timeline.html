@@ -7,8 +7,10 @@
   <form action="#" onsubmit="tripmanager.saveTrip()">
     Trip name: <input id="trip-name" name="name"
                       type="text" value="unnamed trip"><br>
-    <a href="javascript:tripmanager.setOrigin()">Choose origin</a><br>
-    <a href="javascript:tripmanager.addDest()">Add destination</a><br>
+    <a id="trip-org-set"
+       href="javascript:tripmanager.setOrigin()">Choose origin</a><br>
+    <a id="trip-dest-add"
+       href="javascript:tripmanager.addDest()">Add destination</a><br>
     <input type="submit" value="submit">
   </form>
 </div>

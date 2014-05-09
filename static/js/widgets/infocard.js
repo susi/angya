@@ -37,6 +37,11 @@ Infocard.prototype.setContents = function(newBody)
   return this;
 }
 
+Infocard.prototype.addContents = function(moreContent)
+{
+  this.body.append(moreContent);
+};
+
 Infocard.prototype.resize = function(width, height)
 {
   this.div.width(width).height(height);

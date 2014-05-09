@@ -27,6 +27,23 @@ TripManager.prototype.listTrips = function()
     infocard.open();
 };
 
+TripManager.prototype.showTrip = function(trip_id)
+{
+    var tripmanager = this;
+    $.getJSON( "/widgets/timeline/" + trip_id, function( trip ) {
+        if(trip) {
+            tripmanager.selected_trip = trip;
+            infocard.close();
+            tripmanager.timeline.setTrip(trip);
+            tripmanager.timeline.popup();
+        }
+        else {
+            alert("failed to get trip details for trip " + trip_id);
+        }
+    });
+};
+
+
 TripManager.prototype.createTrip = function()
 {
     var tripmanager = this;
@@ -48,21 +65,18 @@ TripManager.prototype.createTrip = function()
     });
 };
 
-TripManager.prototype.showTrip = function(trip_id)
+TripManager.prototype.setOrigin = function()
 {
-    var tripmanager = this;
-    $.getJSON( "/widgets/timeline/" + trip_id, function( trip ) {
-        if(trip) {
-            tripmanager.selected_trip = trip;
-            infocard.close();
-            tripmanager.timeline.setTrip(trip);
-            tripmanager.timeline.popup();
-        }
-        else {
-            alert("failed to get trip details for trip " + trip_id);
-        }
+    this.origin_marker = new google.maps.Marker({
+        map: map,
+        clickable: true,
+        draggable: true,
+        position: map.getCenter(),
+        raiseOnDrag: true,
+        title: 'Place me where you start your trip from',
+        visible: true,
     });
-};
+}
 
 function Timeline(parent)
 {
