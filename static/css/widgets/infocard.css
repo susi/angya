@@ -9,7 +9,7 @@
 }
 
 .infobox {
-    width: 250px;
+    width: 280px;
     position: absolute;
     background-color: rgba(255, 255, 255, .85);
     padding: 16px;
@@ -20,4 +20,20 @@
     font-size: 18px;
     font-weight: bold;
     text-transform: uppercase;
+}
+
+.infobox label {
+    font-weight: bold;
+}
+
+.infobox input {
+    font-size: 18px;
+    font-weight: bold;
+    width: 270px;
+    border: 1px solid #999;
+}
+
+.infobox textarea {
+    width: 270px;
+    height: 200px;
 }

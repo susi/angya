@@ -50,7 +50,7 @@ Infocard.prototype.resize = function(width, height)
 // The infobox is a subcalss of the OverlayView
 // https://developers.google.com/maps/documentation/javascript/customoverlays
 Infobox.prototype = new google.maps.OverlayView();
-function Infobox(map, anchor, header, body)
+function Infobox(map, anchor, header, body, editable)
 {
     // Initialize all properties.
     this.map = map;
@@ -58,6 +58,7 @@ function Infobox(map, anchor, header, body)
     // The header and contents of the infowindow
     this.header = header;
     this.body = body;
+    this.editable = editable;        
 
     // Define a property to hold the div containter of the Infobox.
     // We'll actually create this div upon receipt of the onAdd()
@@ -74,18 +75,40 @@ Infobox.prototype.onAdd = function()
     div.className = 'infobox';
 
     // Create the h4 element and attach it to the div.
-    var h4 = document.createElement('h4');
-    h4.innerHTML = this.header;
-    div.appendChild(h4);
-
     // Create the p element and attach it to the div.
-    var p = document.createElement('p');
-    p.innerHTML = this.body;
-    div.appendChild(p);
+    var h4 = null;
+    var p = null;
+    if(this.editable) {
+        var lh = document.createElement('label');
+        lh.innerHTML = 'Name of Place';
+        h4 = document.createElement('input');
+        h4.setAttribute("type", "text");
+        h4.setAttribute("placeholder",this.header);
+
+        var lb = document.createElement('h5');
+        lb.innerHTML = 'Location description:';
+        p = document.createElement('textarea');
+        p.setAttribute("placeholder", this.body);
+
+        div.appendChild(lh);
+        div.appendChild(h4);
+        div.appendChild(lb);
+        div.appendChild(p);
+    }
+    else {
+        h4 = document.createElement('h4');
+        h4.innerHTML = this.header;        
+
+        p = document.createElement('p');
+        p.innerHTML = this.body;
+
+        div.appendChild(h4);
+        div.appendChild(p);
+    }
 
     this.div = div;
 
-    // Add the element to the "flaotPane" pane.
+    // Add the element to the "floatPane" pane.
     // We use the floatPane so that the Infobox is over the markers,
     // just like an InfoWindow
     var panes = this.getPanes();
@@ -123,6 +146,12 @@ Infobox.prototype.close = function()
 {
     this.div.style.visibility = 'visible';
 };
+
+Infobox.prototype.setHeight = function(newHeight)
+{
+    this.div.style.height = newHeight;
+}
+
 
 Infobox.prototype.setHeader = function(newHeader)
 {
