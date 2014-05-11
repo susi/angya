@@ -3,6 +3,8 @@ function TripManager(parent, infocard, trips)
     this.trips = trips;
     this.selected_trip = null;
     this.timeline = new Timeline(parent);
+    this.origin_marker = {};
+    this.destination_markers = [];
 }
 
 TripManager.prototype.listTrips = function()
@@ -67,15 +69,81 @@ TripManager.prototype.createTrip = function()
 
 TripManager.prototype.setOrigin = function()
 {
-    this.origin_marker = new google.maps.Marker({
+    this.origin_marker = createTripPlanningMarker(
+        map.getCenter(), 'Starting place',
+        'Place this marker wherever you start your trip from.' +
+        ' Typically your home, office or maybe home town.'+
+        ' The trip starts and ends here', true);
+}
+
+TripManager.prototype.addPlace = function()
+{
+    var title = "destination name";
+    var body = "describe your destination in any way you want.";
+    var marker = createTripPlanningMarker(
+        map.getCenter(), title, body, true);
+    var n = this.destination_markers.length;
+    var prev_marker;
+    if (n > 0)
+        prev_marker = this.destination_markers[n-1];
+    else
+        prev_marker = this.origin_marker;
+    this.destination_markers.push(marker);
+    var polyline = new google.maps.Polyline({
+        draggable: false,
+        geodesic: true,
+        clickable: true,
+        map: map,
+        path: [prev_marker.marker.getPosition(), marker.marker.getPosition()],
+        strokeColor: 'blue'        
+    });
+    google.maps.event.addListener(prev_marker.marker, 'drag', function(event) {
+        polyline.setPath([event.latLng, marker.marker.getPosition()]);
+    });
+    google.maps.event.addListener(marker.marker, 'drag', function(event) {
+        polyline.setPath([prev_marker.marker.getPosition(), event.latLng]);
+    });
+
+    if (this.return_trip)
+        this.return_trip.setMap(null);
+    var origin_marker = this.origin_marker;
+    var return_trip = new google.maps.Polyline({
+        draggable: false,
+        geodesic: true,
+        clickable: true,
+        map: map,
+        path: [marker.marker.getPosition(), origin_marker.marker.getPosition()],
+        strokeColor: 'blue'        
+    });
+    this.return_trip = return_trip;
+    google.maps.event.addListener(marker.marker, 'drag', function(event) {
+        return_trip.setPath([event.latLng, origin_marker.marker.getPosition()]);
+    });
+    google.maps.event.addListener(origin_marker.marker, 'drag', function(event) {
+        return_trip.setPath([marker.marker.getPosition(), event.latLng]);
+    });
+
+    
+    console.log('from ' + prev_marker.marker.getPosition().toString() + ' to ' + marker.marker.getPosition().toString());
+}
+
+function createTripPlanningMarker(latLng, title, body, editable)
+{
+    var marker = new google.maps.Marker({
         map: map,
         clickable: true,
         draggable: true,
-        position: map.getCenter(),
+        position: latLng,
         raiseOnDrag: true,
-        title: 'Place me where you start your trip from',
+        title: title,
         visible: true,
     });
+    var infobox = new Infobox(map, latLng, title, body, editable);
+
+    google.maps.event.addListener(marker, 'drag', function(event) {
+        infobox.move(event.latLng);
+    });
+    return {marker: marker, infobox: infobox};
 }
 
 function Timeline(parent)
