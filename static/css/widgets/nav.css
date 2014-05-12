@@ -88,6 +88,10 @@
     background:url(/static/img/icons.png) -26px -269px no-repeat;
 }
 
+#map-nav a#trip i{
+    background:url(/static/img/airplane.png) no-repeat;
+}
+
 #map-nav a#camera i{
     background-position:-63px -272px;
 }
