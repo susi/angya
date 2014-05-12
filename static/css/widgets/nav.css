@@ -58,11 +58,11 @@
     border:1px solid #d7d5d5;
     white-space:nowrap;
     opacity:0;
-    transition:opacity ease-in 0.5s, left 1s;
-    -webkit-transition:opacity ease-in 0.5s, left 1s;
-    -moz-transition:opacity ease-in 0.5s, left 1s;
-    -o-transition:opacity ease-in 0.5s, left 1s;
-    -ms-transition:opacity ease-in 0.5s, left 1s;
+    transition:opacity ease-in 0.5s, left 0.4s;
+    -webkit-transition:opacity ease-in 0.5s, left 0.4s;
+    -moz-transition:opacity ease-in 0.5s, left 0.4s;
+    -o-transition:opacity ease-in 0.5s, left 0.4s;
+    -ms-transition:opacity ease-in 0.5s, left 0.4s;
 }
 
 #map-nav a:hover span {
