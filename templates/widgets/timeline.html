@@ -14,10 +14,31 @@
 </div>
 {% elif new_place_form %}
 <form>
-    <label>Name of Place</label>     <input name='place-name' class="place-name" type="text" placeholder="destination name"><br>
-    <label>Date of arrival:</label>  <input name='place-date' class="place-date" type="date" value="{{today}}"><br>
-    <label>Duration of stay:</label> <input name='place-days' class="place-num" type="number" placeholder="1"> days<br>
-    <label>Place description:</label><br>
-    <textarea placeholder="describe your destination in any way you want." name="place-desc"></textarea>
+  <label>Name of Place</label>
+  <input name="place-name" class="place-name" type="text"
+         placeholder="destination name"><br>
+  <label>Date of arrival:</label>
+  <input name="place-date" class="place-date" type="date"
+         value="{{today}}"><br>
+  <label>Duration of stay:</label>
+  <input name="place-days" class="place-num" type="number"
+         placeholder="1"> days<br>
+  <label>Place description:</label><br>
+  <textarea placeholder="describe your destination in any way you want."
+            name="place-desc"></textarea>
+</form>
+{% elif travel_form %}
+<form>
+  <label>Travel mode</label>
+  <select name="travel-mode" class="travel-select">
+    <option value="plane">Airplane</option>
+    <option value="boat">Boat / Ship</option>
+    <option value="car">Car</option>
+    <option value="train">Train</option>
+    <option value="other">Other</option>
+  </select><br>
+  <label>Travel time:</label>
+  <input name="travel-hours" class="travel-num" type="number"
+         placeholder="1"> hours<br>
 </form>
 {% endif %}

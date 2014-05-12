@@ -96,3 +96,24 @@
     height: 200px;
 }
 
+.travelinfo {
+    width: 200px;
+    padding: 16px;
+    font-size: 14px;
+}
+
+.travelinfo form input.travel-num {
+    width: 3em;
+}
+
+.travelinfo form select.travel-select {
+    border: 0 !important;
+    background-color: white;
+    color: #35f;
+    font-weight: bold;
+}
+
+.travelinfo form label {
+    font-weight: bold;
+}
+

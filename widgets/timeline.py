@@ -73,6 +73,11 @@ class Timeline(object):
             user=self.user, new_place_form=True,
             today=datetime.date.today().isoformat())
 
+    def render_travel_form(self):
+        return flask.render_template(
+            'widgets/timeline.html',
+            user=self.user, travel_form=True)
+
 
 class NdbJSONEncoder(json.JSONEncoder):
     def default(self, o):

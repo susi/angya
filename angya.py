@@ -55,6 +55,8 @@ def timeline_handler(trip_id=None):
         return timeline.render_trip_form()
     elif trip_id == 'newplace':
         return timeline.render_place_form()
+    elif trip_id == 'travel':
+        return timeline.render_travel_form()
     else:
         return timeline.render(trip_id)
 

@@ -280,7 +280,7 @@ Location.prototype.createMarker = function()
     });
     this.marker = marker;
     this.placeinfo = placeinfo;
-    
+
     return marker;
 }
 
@@ -303,11 +303,13 @@ Location.prototype.setOutboundTravel = function(travel)
 
 function Travel(mode, origin, destination, travel_time)
 {
-    console.log('travel from ' + origin.latLng + ' to ' + destination.latLng + ' by ' + mode);
+    console.log('travel from ' + origin.latLng + ' to ' +
+                destination.latLng + ' by ' + mode);
     this.mode = mode;
     this.origin = origin;
     this.destination = destination;
-    this.travel_time = travel_time;
+    this.time = travel_time;
+    this.infowindow = null;
     var color = '';
     if (mode == 'plane')
         color='red';
@@ -332,10 +334,107 @@ function Travel(mode, origin, destination, travel_time)
     var travel = this;
     google.maps.event.addListener(origin.marker, 'drag', function(event) {
         polyline.setPath([event.latLng, destination.latLng]);
+        travel.moveInfoWindow(event.latLng, destination.latLng);
     });
     google.maps.event.addListener(destination.marker, 'drag', function(event) {
         polyline.setPath([origin.latLng, event.latLng]);
+        travel.moveInfoWindow(origin.latLng, event.latLng);
     });
+    google.maps.event.addListener(polyline, 'click', function(event) {
+        if (travel.infowindow) {
+            console.log(travel);
+            travel.moveInfoWindow(origin.latLng, destination.latLng);
+            travel.infowindow.open(map);
+        }
+        else {
+            $.get( "/widgets/timeline/travel", function( form ) {
+                var position = google.maps.geometry.spherical.interpolate(
+                    origin.latLng, destination.latLng, 0.5);
+                var div = document.createElement('div');
+                div.className = 'travelinfo';
+                div.innerHTML = form;
+                div.id = 'travel-' + timeline_uid++;
+                travel.div = div;
+                var infowindow = new google.maps.InfoWindow({
+                    content: div,
+                    disableAutoPan: true,
+                    maxWidth: 235,
+                    pixelOffset: new google.maps.Size(0, 7),
+                    position: position
+                });
+                infowindow.open(map);
+                travel.infowindow=infowindow;
+                console.log(travel);
+                $(div).change(function() {
+                    var newMode =
+                        $('div#'+div.id+' form select[name=travel-mode]')
+                        .val();
+                    travel.setMode(newMode);
+                    travel.time =
+                        $('div#'+div.id+' form input[name=travel-hours]')
+                        .val();
+                    });
+            });
+        }
+    });
+}
+
+Travel.prototype.setMode = function(newMode)
+{
+    this.mode = newMode;
+    if (this.mode == 'plane') {
+        this.mode='plane';
+        this.polyline.setOptions({
+            geodesic: this.mode=='plane',
+            strokeColor: color
+        });
+    }
+    else if (this.mode == 'boat') {
+        color='blue';
+        this.polyline.setOptions({
+            geodesic: this.mode=='plane',
+            strokeColor: color
+        });
+    }
+    else if (this.mode == 'train') {
+        color='green';
+        this.polyline.setOptions({
+            geodesic: this.mode=='plane',
+            strokeColor: color
+        });
+    }
+    else if (this.mode == 'car') {
+        color='orange';
+        this.polyline.setOptions({
+            geodesic: this.mode=='plane',
+            strokeColor: color
+        });
+    }
+    else {
+        color='black';
+        this.polyline.setOptions({
+            geodesic: this.mode=='plane',
+            strokeColor: color
+        });
+    }
+    this.moveInfoWindow(this.origin.latLng, this.destination.latLng);
+};
+
+Travel.prototype.moveInfoWindow = function(orig, dest)
+{
+    if(this.infowindow) {
+        var position;
+        if(this.mode == 'plane') {
+            position = google.maps.geometry.spherical.interpolate(
+            orig, dest, 0.5);
+        }
+        else {
+            position = new google.maps.LatLng(
+                orig.lat() - (orig.lat() - dest.lat())/2.0,
+                orig.lng() - (orig.lng() - dest.lng())/2.0);
+        }
+        this.infowindow.setPosition(position);
+    }
 }
 
 
@@ -414,27 +513,31 @@ PlaceInfo.prototype.onAdd = function()
         // reference in the place object.
         $('div#'+div.id+' form input[name=place-name]')
             .change(function() {
-                placeinfo.place.name = $('div#'+div.id+' form input[name=place-name]').val();
+                placeinfo.place.name =
+                    $('div#'+div.id+' form input[name=place-name]').val();
             });
         $('div#'+div.id+' form input[name=place-date]')
             .change(function() {
-                placeinfo.place.date = $('div#'+div.id+' form input[name=place-date]').val();
+                placeinfo.place.date =
+                    $('div#'+div.id+' form input[name=place-date]').val();
             });
         $('div#'+div.id+' form input[name=place-days]')
             .change(function() {
-                placeinfo.place.duration = $('div#'+div.id+' form input[name=place-days]').val();
+                placeinfo.place.duration =
+                    $('div#'+div.id+' form input[name=place-days]').val();
             });
         $('div#'+div.id+' form input[name=place-desc]')
             .change(function() {
-                placeinfo.place.description = $('div#'+div.id+' form input[name=place-desc]').val();
+                placeinfo.place.description =
+                    $('div#'+div.id+' form input[name=place-desc]').val();
             });
     });
 };
 
 PlaceInfo.prototype.draw = function()
 {
-    // retrieve the projection from the overlay, so that we can calculate the positioning
-    // of the upper left corner of the infowindow
+    // retrieve the projection from the overlay, so that we can
+    // calculate the positioning of the upper left corner of the infowindow.
     var overlayProjection = this.getProjection();
 
     // Retrieve the south-west and north-east coordinates of this overlay
@@ -442,7 +545,7 @@ PlaceInfo.prototype.draw = function()
     // We'll use these coordinates to resize the div.
     var pt = overlayProjection.fromLatLngToDivPixel(this.anchor);
 
-    // Resize the image's div to fit the indicated dimensions.
+    // Calculate the pixel coordinate of the upper left corner.
     this.div.style.left = pt.x + 'px';
     this.div.style.top = pt.y + 'px';
 };
