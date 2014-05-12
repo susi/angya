@@ -14,6 +14,7 @@ class Location(ndb.Model):
     date = ndb.DateProperty()
     location = ndb.GeoPtProperty()
     duration = ndb.IntegerProperty()
+    description = ndb.TextProperty()
 
 class Travel(ndb.Model):
     mode = ndb.StringProperty(
@@ -62,8 +63,15 @@ class Timeline(object):
             return flask.jsonify(**widget)
 
     def render_trip_form(self):
-        return flask.render_template('widgets/timeline.html',
-                                     user=self.user)
+        return flask.render_template(
+            'widgets/timeline.html',
+            user=self.user, new_trip_form=True)
+
+    def render_place_form(self):
+        return flask.render_template(
+            'widgets/timeline.html',
+            user=self.user, new_place_form=True,
+            today=datetime.date.today().isoformat())
 
 
 class NdbJSONEncoder(json.JSONEncoder):

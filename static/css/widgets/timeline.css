@@ -60,3 +60,39 @@
     color: #999999;
     font-weight: bold
 }
+
+.placeinfo {
+    width: 280px;
+    position: absolute;
+    background-color: rgba(255, 255, 255, .85);
+    padding: 16px;
+    font-size: 14px;
+}
+
+.placeinfo form label {
+    font-weight: bold;
+}
+
+.placeinfo form input {
+    font-size: 14px;
+    font-weight: bold;
+    border: 1px solid #999;
+}
+
+.placeinfo form input.place-name {
+    width: 270px;
+}
+
+.placeinfo form input.place-date {
+    width: 270px;
+}
+
+.placeinfo form input.place-num {
+    width: 3em;
+}
+
+.placeinfo form textarea {
+    width: 270px;
+    height: 200px;
+}
+

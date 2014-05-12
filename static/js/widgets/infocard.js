@@ -50,7 +50,7 @@ Infocard.prototype.resize = function(width, height)
 // The infobox is a subcalss of the OverlayView
 // https://developers.google.com/maps/documentation/javascript/customoverlays
 Infobox.prototype = new google.maps.OverlayView();
-function Infobox(map, anchor, header, body, editable)
+function Infobox(map, anchor, header, body, editable, include_date)
 {
     // Initialize all properties.
     this.map = map;
@@ -58,7 +58,8 @@ function Infobox(map, anchor, header, body, editable)
     // The header and contents of the infowindow
     this.header = header;
     this.body = body;
-    this.editable = editable;        
+    this.editable = editable;
+    this.include_date = include_date;
 
     // Define a property to hold the div containter of the Infobox.
     // We'll actually create this div upon receipt of the onAdd()
@@ -85,13 +86,29 @@ Infobox.prototype.onAdd = function()
         h4.setAttribute("type", "text");
         h4.setAttribute("placeholder",this.header);
 
-        var lb = document.createElement('h5');
+        div.appendChild(lh);
+        div.appendChild(h4);
+
+        console.log(this);
+        if(this.include_date) {
+            var ld = document.createElement('label');
+            ld.innerHTML = 'Duration of stay in days:';
+            var dr = document.createElement('input');
+            dr.setAttribute("type", "number");
+            dr.setAttribute("placeholder", 1);
+            dr.style.width = '3em';
+            dr.style.marginLeft = '10px';
+            dr.style.marginRight = '5em';
+
+            div.appendChild(ld);
+            div.appendChild(dr);
+        }
+
+        var lb = document.createElement('label');
         lb.innerHTML = 'Location description:';
         p = document.createElement('textarea');
         p.setAttribute("placeholder", this.body);
 
-        div.appendChild(lh);
-        div.appendChild(h4);
         div.appendChild(lb);
         div.appendChild(p);
     }

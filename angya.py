@@ -53,6 +53,8 @@ def timeline_handler(trip_id=None):
     timeline = widgets.timeline.Timeline(app)
     if trip_id == 'new':
         return timeline.render_trip_form()
+    elif trip_id == 'newplace':
+        return timeline.render_place_form()
     else:
         return timeline.render(trip_id)
 

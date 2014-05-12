@@ -1,3 +1,6 @@
+var timeline_uid = 1;
+
+
 function TripManager(parent, infocard, trips)
 {
     this.trips = trips;
@@ -49,8 +52,7 @@ TripManager.prototype.showTrip = function(trip_id)
 TripManager.prototype.createTrip = function()
 {
     var tripmanager = this;
-    tripmanager.selected_trip = {name: 'unnamed trip', owner: '',
-                                 locations: [], travel: []};
+    tripmanager.selected_trip = new Trip('unnamed trip');
     $.get( "/widgets/timeline/new", function( form ) {
         infocard.close();
         infocard.setHeader('Create Trip');
@@ -60,91 +62,39 @@ TripManager.prototype.createTrip = function()
         tripmanager.timeline.popup();
         $('#new-trip form input[name=name]')
             .keyup(function() {
-                tripmanager.timeline.setHeader(
-                    $('#new-trip form input[name=name]').val())
+                var trip_name = $('#new-trip form input[name=name]').val();
+                tripmanager.selected_trip.setName(trip_name)
+                tripmanager.timeline.setHeader(trip_name);
             })
             .focus();
     });
 };
 
-TripManager.prototype.setOrigin = function()
-{
-    this.origin_marker = createTripPlanningMarker(
-        map.getCenter(), 'Starting place',
-        'Place this marker wherever you start your trip from.' +
-        ' Typically your home, office or maybe home town.'+
-        ' The trip starts and ends here', true);
-}
-
 TripManager.prototype.addPlace = function()
 {
-    var title = "destination name";
-    var body = "describe your destination in any way you want.";
-    var marker = createTripPlanningMarker(
-        map.getCenter(), title, body, true);
-    var n = this.destination_markers.length;
-    var prev_marker;
-    if (n > 0)
-        prev_marker = this.destination_markers[n-1];
-    else
-        prev_marker = this.origin_marker;
-    this.destination_markers.push(marker);
-    var polyline = new google.maps.Polyline({
-        draggable: false,
-        geodesic: true,
-        clickable: true,
-        map: map,
-        path: [prev_marker.marker.getPosition(), marker.marker.getPosition()],
-        strokeColor: 'blue'        
-    });
-    google.maps.event.addListener(prev_marker.marker, 'drag', function(event) {
-        polyline.setPath([event.latLng, marker.marker.getPosition()]);
-    });
-    google.maps.event.addListener(marker.marker, 'drag', function(event) {
-        polyline.setPath([prev_marker.marker.getPosition(), event.latLng]);
-    });
-
-    if (this.return_trip)
-        this.return_trip.setMap(null);
-    var origin_marker = this.origin_marker;
-    var return_trip = new google.maps.Polyline({
-        draggable: false,
-        geodesic: true,
-        clickable: true,
-        map: map,
-        path: [marker.marker.getPosition(), origin_marker.marker.getPosition()],
-        strokeColor: 'blue'        
-    });
-    this.return_trip = return_trip;
-    google.maps.event.addListener(marker.marker, 'drag', function(event) {
-        return_trip.setPath([event.latLng, origin_marker.marker.getPosition()]);
-    });
-    google.maps.event.addListener(origin_marker.marker, 'drag', function(event) {
-        return_trip.setPath([marker.marker.getPosition(), event.latLng]);
-    });
-
-    
-    console.log('from ' + prev_marker.marker.getPosition().toString() + ' to ' + marker.marker.getPosition().toString());
+    var place = new Location(null, dateToday(), map.getCenter(), 1, null);
+    this.selected_trip.addPlace(place);
 }
 
-function createTripPlanningMarker(latLng, title, body, editable)
+
+function dateToday()
 {
-    var marker = new google.maps.Marker({
-        map: map,
-        clickable: true,
-        draggable: true,
-        position: latLng,
-        raiseOnDrag: true,
-        title: title,
-        visible: true,
-    });
-    var infobox = new Infobox(map, latLng, title, body, editable);
+    var today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth()+1; //January is 0!
+    var yyyy = today.getFullYear();
 
-    google.maps.event.addListener(marker, 'drag', function(event) {
-        infobox.move(event.latLng);
-    });
-    return {marker: marker, infobox: infobox};
+    if(dd<10) {
+        dd='0'+dd
+    } 
+    if(mm<10) {
+        mm='0'+mm
+    } 
+
+    today = yyyy + '-' + mm + '-' + dd;
+    return today;
 }
+
 
 function Timeline(parent)
 {
@@ -293,4 +243,227 @@ Timeline.prototype.draw = function()
         });
         this.travelpaths.push(polyline);
     }
+};
+
+
+function Location(name, date, place, duration, description)
+{
+    this.name = name;
+    this.date = date;
+    this.latLng = place;
+    this.duration = duration;
+    this.description = description;
+    this.marker = null;
+    this.placeinfo = null;
+    this.inbound_travel;
+    this.outbound_travel;
+}
+
+Location.prototype.createMarker = function()
+{
+    var marker = new google.maps.Marker({
+        map: map,
+        clickable: true,
+        draggable: true,
+        position: this.latLng,
+        raiseOnDrag: true,
+        title: location.name,
+        visible: true,
+    });
+    var place = this;
+    google.maps.event.addListener(marker, 'dragend', function(event) {
+        place.latLng = event.latLng;
+    });
+    var placeinfo = new PlaceInfo(this);
+    google.maps.event.addListener(marker, 'drag', function(event) {
+        placeinfo.move(event.latLng);
+    });
+    this.marker = marker;
+    this.placeinfo = placeinfo;
+    
+    return marker;
+}
+
+Location.prototype.setInboundTravel = function(travel)
+{
+    if(this.inbound_travel) {
+        this.inbound_travel.polyline.setMap(null);
+    }
+    this.inbound_travel = travel;
+};
+
+Location.prototype.setOutboundTravel = function(travel)
+{
+    if(this.outbound_travel) {
+        this.outbound_travel.polyline.setMap(null);
+    }
+    this.outbound_travel = travel;
+};
+
+
+function Travel(mode, origin, destination, travel_time)
+{
+    console.log('travel from ' + origin.latLng + ' to ' + destination.latLng + ' by ' + mode);
+    this.mode = mode;
+    this.origin = origin;
+    this.destination = destination;
+    this.travel_time = travel_time;
+    var color = '';
+    if (mode == 'plane')
+        color='red';
+    else if (mode == 'boat')
+        color='blue';
+    else if (mode == 'train')
+        color='green';
+    else if (mode == 'car')
+        color='orange';
+    else
+        color='black';
+
+    var polyline = new google.maps.Polyline({
+        draggable: false,
+        geodesic: mode=='plane',
+        clickable: true,
+        map: map,
+        path: [origin.latLng, destination.latLng],
+        strokeColor: color
+    });
+    this.polyline = polyline;
+    var travel = this;
+    google.maps.event.addListener(origin.marker, 'drag', function(event) {
+        polyline.setPath([event.latLng, destination.latLng]);
+    });
+    google.maps.event.addListener(destination.marker, 'drag', function(event) {
+        polyline.setPath([origin.latLng, event.latLng]);
+    });
+}
+
+
+function Trip(name)
+{
+    this.name = name;
+    this.locations = [];
+    this.travel = [];
+    this.return_trip = null;
+}
+
+Trip.prototype.setName = function(name)
+{
+    this.name = name;
+};
+
+Trip.prototype.addPlace = function(place)
+{
+    this.locations.push(place);
+    var marker = place.createMarker();
+
+    // if we have more than one place create travel to and from it.
+    if(this.locations.length > 1) {
+        console.log("More than 1 location, adding travel!");
+        var n = this.locations.length;
+        var prev = this.locations[n-2];
+        var curr = this.locations[n-1];
+        var orig = this.locations[0];
+
+        var inbound_travel = new Travel('plane', prev, curr, 1);
+        var outbound_travel = new Travel('plane', curr, orig, 1);
+        prev.setOutboundTravel(inbound_travel);
+        orig.setInboundTravel(outbound_travel);
+        this.travel.pop();
+        this.travel.push(inbound_travel);
+        this.travel.push(outbound_travel);
+    }
+};
+
+
+PlaceInfo.prototype = new google.maps.OverlayView();
+function PlaceInfo(place)
+{
+    // Initialize all properties.
+    this.map = map;
+    this.place = place;
+    this.anchor = place.latLng;
+    // The header and contents of the infowindow
+
+    // Define a property to hold the div containter of the Placeinfo.
+    // We'll actually create this div upon receipt of the onAdd()
+    // method so we'll leave it null for now.
+    this.div = null;
+
+    // Explicitly call setMap on this overlay.
+    this.setMap(map);
+}
+
+PlaceInfo.prototype.onAdd = function()
+{
+    var placeinfo = this;
+    var div = document.createElement('div');
+    div.className = 'placeinfo'
+    div.id = 'place-' + timeline_uid++;
+    this.div = div;
+
+    $.get("/widgets/timeline/newplace", function( place_form ) {
+        // Add the element to the "floatPane" pane.
+        // We use the floatPane so that the Placeinfo is over the markers,
+        // just like an InfoWindow
+        div.innerHTML = place_form;
+        var panes = placeinfo.getPanes();
+        panes.floatPane.appendChild(div);
+        placeinfo.div = div;
+        //next set up some events so that we save the form values for easy
+        // reference in the place object.
+        $('div#'+div.id+' form input[name=place-name]')
+            .change(function() {
+                placeinfo.place.name = $('div#'+div.id+' form input[name=place-name]').val();
+            });
+        $('div#'+div.id+' form input[name=place-date]')
+            .change(function() {
+                placeinfo.place.date = $('div#'+div.id+' form input[name=place-date]').val();
+            });
+        $('div#'+div.id+' form input[name=place-days]')
+            .change(function() {
+                placeinfo.place.duration = $('div#'+div.id+' form input[name=place-days]').val();
+            });
+        $('div#'+div.id+' form input[name=place-desc]')
+            .change(function() {
+                placeinfo.place.description = $('div#'+div.id+' form input[name=place-desc]').val();
+            });
+    });
+};
+
+PlaceInfo.prototype.draw = function()
+{
+    // retrieve the projection from the overlay, so that we can calculate the positioning
+    // of the upper left corner of the infowindow
+    var overlayProjection = this.getProjection();
+
+    // Retrieve the south-west and north-east coordinates of this overlay
+    // in LatLngs and convert them to pixel coordinates.
+    // We'll use these coordinates to resize the div.
+    var pt = overlayProjection.fromLatLngToDivPixel(this.anchor);
+
+    // Resize the image's div to fit the indicated dimensions.
+    this.div.style.left = pt.x + 'px';
+    this.div.style.top = pt.y + 'px';
+};
+
+PlaceInfo.prototype.onRemove = function() {
+    this.div.parentNode.removeChild(this.div);
+    this.div = null;
+};
+
+PlaceInfo.prototype.open = function()
+{
+    this.div.style.visibility = 'hidden';
+};
+
+PlaceInfo.prototype.close = function()
+{
+    this.div.style.visibility = 'visible';
+};
+
+PlaceInfo.prototype.move = function(newLocation)
+{
+    this.anchor = newLocation;
+    this.draw();
 };
