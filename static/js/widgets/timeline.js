@@ -67,6 +67,10 @@ TripManager.prototype.createTrip = function()
                 tripmanager.timeline.setHeader(trip_name);
             })
             .focus();
+        $('#new-trip form').submit(function(event) {
+            event.preventDefault();
+            tripmanager.saveTrip();
+        });
     });
 };
 
@@ -76,6 +80,70 @@ TripManager.prototype.addPlace = function()
     this.selected_trip.addPlace(place);
 }
 
+TripManager.prototype.saveTrip = function()
+{
+    var travelmanager = this;
+    var trip = {
+        name:this.selected_trip.name,
+        locations: [],
+        travel: []
+    };
+    for(var i in this.selected_trip.locations) {
+        var place = this.selected_trip.locations[i];
+        var json_place = {
+            name: place.name,
+            date: place.date,
+            location: {
+                lat: place.latLng.lat(),
+                lon: place.latLng.lng()
+            },
+            duration: place.duration,
+            description: place.description
+        };
+        trip.locations.push(json_place);
+    }
+    for(var i in this.selected_trip.travel) {
+        var travel = this.selected_trip.travel[i];
+        var json_travel = {
+            mode: travel.mode,
+            origin: {
+                lat: travel.origin.latLng.lat(),
+                lon: travel.origin.latLng.lng()
+            },
+            destination: {
+                lat: travel.destination.latLng.lat(),
+                lon: travel.destination.latLng.lng()
+            },
+            time: travel.time
+        };
+        trip.travel.push(json_travel);
+    }
+    var json_trip = JSON.stringify(trip);
+    console.log('Saving trip!');
+    console.log(json_trip);
+    $.ajax({
+        type: 'POST',
+        url: '/widgets/timeline/create',
+        data: json_trip,
+        dataType: 'json',
+        contentType: 'application/json; charset=utf-8"',
+        complete: function(jqxhr) {
+            if(jqxhr.status == 200) {
+                var key = jqxhr.responseText;
+                console.log('TODO: delete selected_trip');
+                travelmanager.showTrip(key);
+                $.getJSON( "/widgets/timeline", function( timeline ) {
+                    if(timeline) {
+                        tripmanager.trips = timeline.trips;
+                    }
+                    else {
+                    alert("failed to reload get trip data");
+                    }
+                });
+            }
+        }
+    });
+};
 
 function dateToday()
 {
@@ -86,10 +154,10 @@ function dateToday()
 
     if(dd<10) {
         dd='0'+dd
-    } 
+    }
     if(mm<10) {
         mm='0'+mm
-    } 
+    }
 
     today = yyyy + '-' + mm + '-' + dd;
     return today;
@@ -98,7 +166,7 @@ function dateToday()
 
 function Timeline(parent)
 {
-    this.div = 
+    this.div =
         $('<div>', {
             id: "timeline",
             class: "gradual"
@@ -184,7 +252,7 @@ Timeline.prototype.draw = function()
     var left_space = this.title.outerWidth();
     var bounds = new google.maps.LatLngBounds();
     this.markers = [];
-    for(i in this.destinations) {
+    for(var i in this.destinations) {
         if((i > 0) && (this.trip_duration != 0)) { // space comes after
             // calculate the space before based on the duration of the
             // stay in the previous place
@@ -192,15 +260,17 @@ Timeline.prototype.draw = function()
                          (timeline_width/this.trip_duration));
         }
         var place = this.destinations[i];
-        var div = $('<div>').css('left',left_space + 'px');
-        var i = $('<i>').appendTo(div);
-        var strong = $('<strong>')
-            .html(place.name)
-            .appendTo(div);
-        var small = $('<small>')
-            .html(place.date + ' ' + place.duration + '&nbsp;days')
-            .appendTo(div);
-        $(div).appendTo(this.timeline);
+        if (i > 0) {
+            var div = $('<div>').css('left',left_space + 'px');
+            var i = $('<i>').appendTo(div);
+            var strong = $('<strong>')
+                .html(place.name)
+                .appendTo(div);
+            var small = $('<small>')
+                .html(place.date + ' ' + place.duration + '&nbsp;days')
+                .appendTo(div);
+            $(div).appendTo(this.timeline);
+        }
         var image = {
             url: '/static/img/icons/16.png',
             scaledSize: new google.maps.Size(24, 32),
@@ -386,35 +456,35 @@ Travel.prototype.setMode = function(newMode)
         this.mode='plane';
         this.polyline.setOptions({
             geodesic: this.mode=='plane',
-            strokeColor: color
+            strokeColor: 'red'
         });
     }
     else if (this.mode == 'boat') {
         color='blue';
         this.polyline.setOptions({
             geodesic: this.mode=='plane',
-            strokeColor: color
+            strokeColor: 'blue'
         });
     }
     else if (this.mode == 'train') {
         color='green';
         this.polyline.setOptions({
             geodesic: this.mode=='plane',
-            strokeColor: color
+            strokeColor: 'green'
         });
     }
     else if (this.mode == 'car') {
         color='orange';
         this.polyline.setOptions({
             geodesic: this.mode=='plane',
-            strokeColor: color
+            strokeColor: 'orange'
         });
     }
     else {
         color='black';
         this.polyline.setOptions({
             geodesic: this.mode=='plane',
-            strokeColor: color
+            strokeColor: 'black'
         });
     }
     this.moveInfoWindow(this.origin.latLng, this.destination.latLng);
@@ -443,7 +513,6 @@ function Trip(name)
     this.name = name;
     this.locations = [];
     this.travel = [];
-    this.return_trip = null;
 }
 
 Trip.prototype.setName = function(name)
@@ -529,7 +598,7 @@ PlaceInfo.prototype.onAdd = function()
         $('div#'+div.id+' form input[name=place-desc]')
             .change(function() {
                 placeinfo.place.description =
-                    $('div#'+div.id+' form input[name=place-desc]').val();
+                    $('div#'+div.id+' form textarea[name=place-desc]').val();
             });
     });
 };

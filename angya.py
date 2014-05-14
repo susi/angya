@@ -60,6 +60,11 @@ def timeline_handler(trip_id=None):
     else:
         return timeline.render(trip_id)
 
+@app.route('/widgets/timeline/create', methods=['POST'])
+def timeline_post_handler():
+    timeline = widgets.timeline.Timeline(app)
+    return timeline.create(flask.request.data)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

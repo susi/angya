@@ -4,6 +4,7 @@ he timeline is a trip that a user takes."""
 
 import json
 import datetime
+import logging
 
 import flask
 from google.appengine.api import users
@@ -21,7 +22,7 @@ class Travel(ndb.Model):
         choices=["car", "boat", "plane", "train", "other"])
     origin = ndb.GeoPtProperty()
     destination = ndb.GeoPtProperty()
-    travel_time = ndb.FloatProperty()
+    time = ndb.FloatProperty()
 
 class Trip(ndb.Model):
     name = ndb.StringProperty()
@@ -77,6 +78,45 @@ class Timeline(object):
         return flask.render_template(
             'widgets/timeline.html',
             user=self.user, travel_form=True)
+
+    def create(self, trip_data):
+        if not self.user:
+            logging.error('Login required')
+            return "LOGIN"
+        logging.debug('create with data:')
+        logging.debug(trip_data)
+        json_trip = json.loads(trip_data)
+        trip = JsonObject(**json_trip)
+        # create a Trip object and put it in the ndb
+        travel = []
+        for journey_dict in trip.travel:
+            journey = JsonObject(**journey_dict)
+            travel.append(Travel(
+                    mode=journey.mode, time=float(journey.time),
+                    origin=ndb.GeoPt(journey.origin['lat'],
+                                     journey.origin['lon']),
+                    destination=ndb.GeoPt(journey.destination['lat'],
+                                          journey.destination['lon'])))
+        locations = []
+        for place_dict in trip.locations:
+            place = JsonObject(**place_dict)
+            locations.append(Location(
+                    name=place.name, duration=int(place.duration),
+                    date=datetime.datetime.strptime(
+                        place.date, '%Y-%m-%d').date(),
+                    description=place.description,
+                    location=ndb.GeoPt(place.location['lat'],
+                                       place.location['lon'])))
+        ndb_trip = Trip(name=trip.name, locations=locations, travel=travel,
+                        owner=self.user.email())
+        key = ndb_trip.put()
+        logging.debug('Pushed trip to ndb!')
+        return key.urlsafe()
+
+
+class JsonObject(object):
+    def __init__(self, **entries):
+        self.__dict__.update(entries)
 
 
 class NdbJSONEncoder(json.JSONEncoder):
