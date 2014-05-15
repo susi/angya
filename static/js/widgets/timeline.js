@@ -101,6 +101,8 @@ TripManager.prototype.saveTrip = function()
             description: place.description
         };
         trip.locations.push(json_place);
+        place.marker.setMap(null);
+        place.placeinfo.close();
     }
     for(var i in this.selected_trip.travel) {
         var travel = this.selected_trip.travel[i];
@@ -117,6 +119,8 @@ TripManager.prototype.saveTrip = function()
             time: travel.time
         };
         trip.travel.push(json_travel);
+        travel.polyline.setMap(null);
+        travel.infowindow.close();
     }
     var json_trip = JSON.stringify(trip);
     console.log('Saving trip!');
@@ -216,7 +220,7 @@ Timeline.prototype.addLocation = function(place)
 {
     console.log("adding location " + place.name);
     this.destinations.push(place);
-    this.trip_duration += place.duration * 60; /* trip duration in minutes */
+    this.trip_duration += place.duration * 24; /* trip duration in hours */
 };
 
 Timeline.prototype.clearLocations = function()
@@ -318,6 +322,7 @@ Timeline.prototype.draw = function()
 
 function Location(name, date, place, duration, description)
 {
+    this.id = 'location-' + timeline_uid++;
     this.name = name;
     this.date = date;
     this.latLng = place;
@@ -325,12 +330,33 @@ function Location(name, date, place, duration, description)
     this.description = description;
     this.marker = null;
     this.placeinfo = null;
-    this.inbound_travel;
-    this.outbound_travel;
+    this.inbound_travel = null;
+    this.outbound_travel = null;
+}
+
+Location.prototype.unlink = function()
+{
+    this.latLng = null;
+    if(this.marker) {
+        this.marker.setMap(null);
+        this.marker = null;
+    }
+    if(this.placeinfo) {
+        this.placeinfo.close();
+        this.placeinfo = null;
+    }
+    this.inbound_travel = null;
+    this.outbound_travel = null;
 }
 
 Location.prototype.createMarker = function()
 {
+    var place = this;
+    var image = {
+        url: '/static/img/icons/16.png',
+        scaledSize: new google.maps.Size(24, 32),
+    };
+
     var marker = new google.maps.Marker({
         map: map,
         clickable: true,
@@ -339,17 +365,20 @@ Location.prototype.createMarker = function()
         raiseOnDrag: true,
         title: location.name,
         visible: true,
+        icon: image,
     });
-    var place = this;
+    this.marker = marker;
+    var placeinfo = new PlaceInfo(this);
+    this.placeinfo = placeinfo;
     google.maps.event.addListener(marker, 'dragend', function(event) {
         place.latLng = event.latLng;
     });
-    var placeinfo = new PlaceInfo(this);
     google.maps.event.addListener(marker, 'drag', function(event) {
         placeinfo.move(event.latLng);
     });
-    this.marker = marker;
-    this.placeinfo = placeinfo;
+    google.maps.event.addListener(marker, 'click', function(event) {
+        placeinfo.open();
+    });
 
     return marker;
 }
@@ -357,7 +386,8 @@ Location.prototype.createMarker = function()
 Location.prototype.setInboundTravel = function(travel)
 {
     if(this.inbound_travel) {
-        this.inbound_travel.polyline.setMap(null);
+        console.log('location '+this.name+' has inbound travel');
+        this.inbound_travel.unlink();
     }
     this.inbound_travel = travel;
 };
@@ -365,7 +395,8 @@ Location.prototype.setInboundTravel = function(travel)
 Location.prototype.setOutboundTravel = function(travel)
 {
     if(this.outbound_travel) {
-        this.outbound_travel.polyline.setMap(null);
+        console.log('location '+this.name+' has outbound travel');
+        this.outbound_travel.unlink();
     }
     this.outbound_travel = travel;
 };
@@ -375,6 +406,7 @@ function Travel(mode, origin, destination, travel_time)
 {
     console.log('travel from ' + origin.latLng + ' to ' +
                 destination.latLng + ' by ' + mode);
+    this.id = 'travel-' + timeline_uid++;
     this.mode = mode;
     this.origin = origin;
     this.destination = destination;
@@ -449,6 +481,21 @@ function Travel(mode, origin, destination, travel_time)
     });
 }
 
+Travel.prototype.unlink = function()
+{
+    if(this.polyline) {
+        this.polyline.setMap(null);
+        this.polyline = null;
+    }
+    if(this.infowindow) {
+        this.infowindow.close();
+        this.infowindow = null;
+    }
+    this.origin = null
+    this.destination = null;
+    console.log(this);
+};
+
 Travel.prototype.setMode = function(newMode)
 {
     this.mode = newMode;
@@ -499,9 +546,9 @@ Travel.prototype.moveInfoWindow = function(orig, dest)
             orig, dest, 0.5);
         }
         else {
-            position = new google.maps.LatLng(
-                orig.lat() - (orig.lat() - dest.lat())/2.0,
-                orig.lng() - (orig.lng() - dest.lng())/2.0);
+            var lng = (dest.lng() + orig.lng()) / 2.0;
+            var lat = (dest.lat() + orig.lat()) / 2.0;
+            position = new google.maps.LatLng(lat, lng);
         }
         this.infowindow.setPosition(position);
     }
@@ -513,6 +560,7 @@ function Trip(name)
     this.name = name;
     this.locations = [];
     this.travel = [];
+    this.id = 'trip-' + timeline_uid++;
 }
 
 Trip.prototype.setName = function(name)
@@ -522,6 +570,7 @@ Trip.prototype.setName = function(name)
 
 Trip.prototype.addPlace = function(place)
 {
+    var trip = this;
     this.locations.push(place);
     var marker = place.createMarker();
 
@@ -535,11 +584,75 @@ Trip.prototype.addPlace = function(place)
 
         var inbound_travel = new Travel('plane', prev, curr, 1);
         var outbound_travel = new Travel('plane', curr, orig, 1);
+        console.log('setting prev.outbound_travel');
         prev.setOutboundTravel(inbound_travel);
+        console.log('setting orig.inbound_travel');
         orig.setInboundTravel(outbound_travel);
+        console.log('setting curr.inbound_travel');
+        curr.setInboundTravel(inbound_travel);
+        console.log('setting curr.outbound_travel');
+        curr.setOutboundTravel(outbound_travel);
+
         this.travel.pop();
         this.travel.push(inbound_travel);
         this.travel.push(outbound_travel);
+    }
+};
+
+Trip.prototype.delPlace = function(place)
+{
+    if(this.locations.length == 1) {
+        this.travel = [];
+        this.locations=[];
+        place.unlink();
+    }
+    if(this.locations.length == 2) {
+        for(i in this.locations) {
+            console.log(this.locations[i].id + '=?' + place.id);
+            if(this.locations[i].id == place.id) {
+                console.log(this.locations[i].id + '==' + place.id);
+                this.locations.splice(i, 1);
+            }
+        }
+        place.unlink();
+        var orig = this.locations[0];
+        orig.setInboundTravel(null);
+        orig.setOutboundTravel(null);
+        this.travel = [];
+    }
+    else {
+        console.log(place);
+        var inbound = place.inbound_travel;
+        var outbound = place.outbound_travel;
+        if (inbound && outbound) {
+            console.log('Unlinking inbound and outbound travel');
+            var prev = inbound.origin;
+            var next = outbound.destination;
+            var new_travel = new Travel('plane', prev, next, 1);
+            prev.setOutboundTravel(new_travel);
+            next.setInboundTravel(new_travel);
+
+            for(i in this.travel) {
+                if(this.travel[i].id == inbound.id)
+                    this.travel.splice(i, 1);
+            }
+            inbound.unlink();
+
+            for(i in this.travel) {
+                if(this.travel[i].id == outbound.id)
+                    this.travel.splice(i, 1);
+            }
+            outbound.unlink();
+        }
+
+        for(i in this.locations) {
+            console.log(this.locations[i].id + '=?' + place.id);
+            if(this.locations[i].id == place.id) {
+                console.log(this.locations[i].id + '==' + place.id);
+                this.locations.splice(i, 1);
+            }
+        }
+        place.unlink();
     }
 };
 
@@ -566,7 +679,7 @@ PlaceInfo.prototype.onAdd = function()
 {
     var placeinfo = this;
     var div = document.createElement('div');
-    div.className = 'placeinfo'
+    div.className = 'placeinfo';
     div.id = 'place-' + timeline_uid++;
     this.div = div;
 
@@ -580,6 +693,14 @@ PlaceInfo.prototype.onAdd = function()
         placeinfo.div = div;
         //next set up some events so that we save the form values for easy
         // reference in the place object.
+        $('div#'+div.id+' .remove-place')
+            .click(function(event) {
+                tripmanager.selected_trip.delPlace(placeinfo.place);
+        })
+        $('div#'+div.id+' .close-icon')
+            .click(function(event) {
+                placeinfo.close();
+            })
         $('div#'+div.id+' form input[name=place-name]')
             .change(function() {
                 placeinfo.place.name =
@@ -595,7 +716,7 @@ PlaceInfo.prototype.onAdd = function()
                 placeinfo.place.duration =
                     $('div#'+div.id+' form input[name=place-days]').val();
             });
-        $('div#'+div.id+' form input[name=place-desc]')
+        $('div#'+div.id+' form textarea[name=place-desc]')
             .change(function() {
                 placeinfo.place.description =
                     $('div#'+div.id+' form textarea[name=place-desc]').val();
@@ -626,12 +747,12 @@ PlaceInfo.prototype.onRemove = function() {
 
 PlaceInfo.prototype.open = function()
 {
-    this.div.style.visibility = 'hidden';
+    this.div.style.visibility = 'visible';
 };
 
 PlaceInfo.prototype.close = function()
 {
-    this.div.style.visibility = 'visible';
+    this.div.style.visibility = 'hidden';
 };
 
 PlaceInfo.prototype.move = function(newLocation)

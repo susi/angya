@@ -93,7 +93,32 @@
 
 .placeinfo form textarea {
     width: 270px;
-    height: 200px;
+    height: 100px;
+}
+
+.placeinfo .remove-place {
+    background: #ffd420;
+    color: black;
+    padding: 8px;
+    margin-top: 5px;
+    display: inline-block;
+}
+
+.placeinfo .close-icon {
+    width: 30px;
+    height: 30px;
+    border: 2px solid black;
+    position: absolute;
+    right: -15px;
+    top: -15px;
+    background: url(/static/img/icons.png) 7px -478px, white;
+    display: inline-block;
+    z-index: 1;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -o-border-radius: 50%;
+    cursor: pointer;
 }
 
 .travelinfo {

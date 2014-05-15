@@ -13,6 +13,7 @@
   </form>
 </div>
 {% elif new_place_form %}
+<i class="close-icon"></i>
 <form>
   <label>Name of Place</label>
   <input name="place-name" class="place-name" type="text"
@@ -26,6 +27,7 @@
   <label>Place description:</label><br>
   <textarea placeholder="describe your destination in any way you want."
             name="place-desc"></textarea>
+  <a href="#" class="remove-place">Remove location</a>
 </form>
 {% elif travel_form %}
 <form>
