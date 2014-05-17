@@ -8,6 +8,10 @@ function TripManager(parent, infocard, trips)
     this.timeline = new Timeline(parent);
     this.origin_marker = {};
     this.destination_markers = [];
+    if(window.location.hash) {
+        var hash = window.location.hash.substring(1);
+        this.showTrip(hash);
+    }
 }
 
 TripManager.prototype.listTrips = function()
@@ -42,6 +46,7 @@ TripManager.prototype.showTrip = function(trip_id)
             tripmanager.selected_trip = trip;
             tripmanager.timeline.editable = false;
             tripmanager.timeline.setTrip(trip);
+            window.location.hash = trip_id;
             tripmanager.timeline.popup();
         }
         else {

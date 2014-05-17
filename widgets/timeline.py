@@ -41,9 +41,8 @@ class Timeline(object):
 
     def render(self, trip_id=None):
         if trip_id:
-            # require the user to own the trip
             trip = ndb.Key(urlsafe=trip_id).get()
-            if trip and self.user and self.user.email() == trip.owner:
+            if trip:
                 trip = json.loads(
                     json.dumps(trip.to_dict(), cls=NdbJSONEncoder))
             else:
