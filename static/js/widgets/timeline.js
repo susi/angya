@@ -35,10 +35,12 @@ TripManager.prototype.listTrips = function()
 TripManager.prototype.showTrip = function(trip_id)
 {
     var tripmanager = this;
-    $.getJSON( "/widgets/timeline/" + trip_id, function( trip ) {
-        if(trip) {
-            tripmanager.selected_trip = trip;
+    $.getJSON( "/widgets/timeline/" + trip_id, function( trip_data ) {
+        if(trip_data) {
             infocard.close();
+            var trip = new Trip(trip_data);
+            tripmanager.selected_trip = trip;
+            tripmanager.timeline.editable = false;
             tripmanager.timeline.setTrip(trip);
             tripmanager.timeline.popup();
         }
@@ -52,7 +54,7 @@ TripManager.prototype.showTrip = function(trip_id)
 TripManager.prototype.createTrip = function()
 {
     var tripmanager = this;
-    tripmanager.selected_trip = new Trip('unnamed trip');
+    tripmanager.selected_trip = new Trip({name:'unnamed trip'});
     $.get( "/widgets/timeline/new", function( form ) {
         infocard.close();
         infocard.setHeader('Create Trip');
@@ -60,6 +62,7 @@ TripManager.prototype.createTrip = function()
         infocard.open();
         tripmanager.timeline.setTrip(tripmanager.selected_trip);
         tripmanager.timeline.popup();
+        tripmanager.timeline.editable = true;
         $('#new-trip form input[name=name]')
             .keyup(function() {
                 var trip_name = $('#new-trip form input[name=name]').val();
@@ -69,6 +72,7 @@ TripManager.prototype.createTrip = function()
             .focus();
         $('#new-trip form').submit(function(event) {
             event.preventDefault();
+            tripmanager.timeline.popdown();
             tripmanager.saveTrip();
         });
     });
@@ -76,13 +80,20 @@ TripManager.prototype.createTrip = function()
 
 TripManager.prototype.addPlace = function()
 {
-    var place = new Location(null, dateToday(), map.getCenter(), 1, null);
+    console.log('TripManager.addPlace()');
+    var place = new Location({
+        name:'',
+        date: dateToday(),
+        duration: 1,
+        description: ''});
+    console.log('created Location ' + place.id);
     this.selected_trip.addPlace(place);
+    this.timeline.draw(true);
 }
 
 TripManager.prototype.saveTrip = function()
 {
-    var travelmanager = this;
+    var tripmanager = this;
     var trip = {
         name:this.selected_trip.name,
         locations: [],
@@ -120,8 +131,10 @@ TripManager.prototype.saveTrip = function()
         };
         trip.travel.push(json_travel);
         travel.polyline.setMap(null);
-        travel.infowindow.close();
+        if(travel.infowindow)
+            travel.infowindow.close();
     }
+    tripmanager.trips.push(trip);
     var json_trip = JSON.stringify(trip);
     console.log('Saving trip!');
     console.log(json_trip);
@@ -135,15 +148,14 @@ TripManager.prototype.saveTrip = function()
             if(jqxhr.status == 200) {
                 var key = jqxhr.responseText;
                 console.log('TODO: delete selected_trip');
-                travelmanager.showTrip(key);
-                $.getJSON( "/widgets/timeline", function( timeline ) {
-                    if(timeline) {
-                        tripmanager.trips = timeline.trips;
-                    }
-                    else {
-                    alert("failed to reload get trip data");
-                    }
-                });
+                tripmanager.timeline.editable=false;
+                tripmanager.showTrip(key);
+                json_trip.key = key;
+                tripmanager.listTrips();
+            }
+            else {
+                tripmanager.timeline.popup();
+                alert('Saving trip failed. Try again.');
             }
         }
     });
@@ -188,13 +200,12 @@ function Timeline(parent)
     this.timeline = $('<div>', {
         id: "timeline-labels"
     }).appendTo(this.div);
-    this.destinations = [];
-    this.trip_duration = 0;
+    this.editable = false;
 }
 
 Timeline.prototype.popup = function()
 {
-    this.draw();
+    this.draw(this.editable);
     $(this.div).css('bottom','22px');
     // draw lines to the map
 };
@@ -203,12 +214,21 @@ Timeline.prototype.popdown = function()
 {
     $(this.div).css('bottom','-80px');
     this.timeline.empty();
-    for (i in this.markers) {
-        this.markers[i].setMap(null);
+    for (i in this.trip.locations) {
+        this.trip.locations[i].hide();
     }
-    for (i in this.travelpaths) {
-        this.travelpaths[i].setMap(null);
+    for (i in this.trip.travel) {
+        this.trip.travel[i].hide();
     }
+};
+
+Timeline.prototype.setTrip = function(trip)
+{
+    if(this.trip)
+        this.popdown();
+    this.trip = trip;
+
+   this.popup();
 };
 
 Timeline.prototype.setHeader = function(newHeader)
@@ -216,118 +236,81 @@ Timeline.prototype.setHeader = function(newHeader)
     this.title.html(newHeader);
 };
 
-Timeline.prototype.addLocation = function(place)
+Timeline.prototype.draw = function(editable)
 {
-    console.log("adding location " + place.name);
-    this.destinations.push(place);
-    this.trip_duration += place.duration * 24; /* trip duration in hours */
-};
-
-Timeline.prototype.clearLocations = function()
-{
-    this.destinations = [];
+    var trip_duration = 0;
+    for(var i in this.trip.locations) {
+        var place = this.trip.locations[i];
+        console.log("adding location " + place.name);
+        trip_duration += parseInt(place.duration); /* trip duration in hours */
+        console.log('trip_duration: ' + trip_duration);
+    }
     this.timeline.empty();
-    this.trip_duration = 0;
-    for (i in this.markers) {
-        this.markers[i].setMap(null);
-    }
-    for (i in this.travelpaths) {
-        this.travelpaths[i].setMap(null);
-    }
-    this.markers = [];
-    this.travelpaths = [];
-};
-
-Timeline.prototype.setTrip = function(trip)
-{
-    this.trip = trip;
-    this.setHeader(trip.name);
-    this.clearLocations();
-    for(i in trip.locations) {
-        var place = trip.locations[i];
-        this.addLocation(place);
-    }
-};
-
-Timeline.prototype.draw = function()
-{
-    this.timeline.empty();
+    this.title.html(this.trip.name);
     var timeline_width = this.div.width() - this.title.outerWidth();
     var left_space = this.title.outerWidth();
     var bounds = new google.maps.LatLngBounds();
-    this.markers = [];
-    for(var i in this.destinations) {
-        if((i > 0) && (this.trip_duration != 0)) { // space comes after
+    console.log('left_space is ' + left_space + 'px');
+    for(var i in this.trip.locations) {
+        console.log(left_space);
+        var place = this.trip.locations[i];
+        if((i > 0) && (trip_duration != 0)) { // space comes after
             // calculate the space before based on the duration of the
             // stay in the previous place
-            left_space += Math.floor((this.destinations[i-1].duration * 60) *
-                         (timeline_width/this.trip_duration));
+            var left = Math.floor(parseInt(
+                place.inbound_travel.origin.duration) *
+                                  (timeline_width/trip_duration));
+            console.log('increasing left space with ' + left + 'px');
+            if(left < 80)
+                left_space += 80;
+            else
+                left_space += left;
         }
-        var place = this.destinations[i];
-        if (i > 0) {
-            var div = $('<div>').css('left',left_space + 'px');
-            var i = $('<i>').appendTo(div);
-            var strong = $('<strong>')
-                .html(place.name)
-                .appendTo(div);
-            var small = $('<small>')
-                .html(place.date + ' ' + place.duration + '&nbsp;days')
-                .appendTo(div);
-            $(div).appendTo(this.timeline);
-        }
-        var image = {
-            url: '/static/img/icons/16.png',
-            scaledSize: new google.maps.Size(24, 32),
-        };
-
-        var marker = new google.maps.Marker({
-            animation: google.maps.Animation.DROP,
-            map: map,
-            position: place.location,
-            icon: image,
-            title: place.name
-        });
-        this.markers.push(marker);
-        bounds.extend(marker.getPosition());
-        map.fitBounds(bounds);
+        console.log('left space is now:' + left_space + 'px');
+        var div = $('<div>').css('left',left_space + 'px');
+        var i = $('<i>').appendTo(div);
+        var strong = $('<strong>')
+            .html(place.name)
+            .appendTo(div);
+        var small = $('<small>')
+            .html(place.date + ' ' + place.duration + '&nbsp;days')
+            .appendTo(div);
+        $(div).appendTo(this.timeline);
+        bounds.extend(place.latLng);
+        place.draw(editable);
+        if(!editable)
+            map.fitBounds(bounds);
     }
-    this.travelpaths = [];
-    for (i in this.trip.travel) {
-        var trip = this.trip.travel[i];
-        var color = '';
-        if (trip.mode == 'plane')
-            color='red';
-        else if (trip.mode == 'boat')
-            color='blue';
-        else if (trip.mode == 'train')
-            color='green';
-        else if (trip.mode == 'car')
-            color='orange';
-        else
-            color='black';
-
-        var polyline = new google.maps.Polyline({
-            geodesic: (trip.mode == 'plane'),
-            map: map,
-            path: [
-                new google.maps.LatLng(trip.origin.lat, trip.origin.lng),
-                new google.maps.LatLng(trip.destination.lat,
-                                       trip.destination.lng)],
-            strokeColor: color
-        });
-        this.travelpaths.push(polyline);
+    for(var i in this.trip.travel) {
+        this.trip.travel[i].draw(editable);
     }
 };
 
 
-function Location(name, date, place, duration, description)
+function Location(location_data)
 {
     this.id = 'location-' + timeline_uid++;
-    this.name = name;
-    this.date = date;
-    this.latLng = place;
-    this.duration = duration;
-    this.description = description;
+    if('name' in location_data)
+        this.name = location_data.name;
+    else
+        this.name = null;
+    if('date' in location_data)
+        this.date = location_data.date;
+    else
+        thid.date = null;
+    if('location' in location_data)
+        this.latLng = new google.maps.LatLng(location_data.location.lat,
+                                             location_data.location.lng);
+    else
+        this.latLng = map.getCenter();
+    if('duration' in location_data)
+        this.duration = location_data.duration;
+    else
+        this.duration = 0;
+    if('description' in location_data)
+        this.description = location_data.description;
+    else
+        this.description = null;
     this.marker = null;
     this.placeinfo = null;
     this.inbound_travel = null;
@@ -349,38 +332,57 @@ Location.prototype.unlink = function()
     this.outbound_travel = null;
 }
 
-Location.prototype.createMarker = function()
+Location.prototype.draw = function(editable)
 {
-    var place = this;
-    var image = {
-        url: '/static/img/icons/16.png',
-        scaledSize: new google.maps.Size(24, 32),
-    };
+    if(this.marker) {
+        console.log('I have a marker, putting it on the map.');
+        this.marker.setClickable(editable);
+        this.marker.setDraggable(editable);
+        this.marker.setMap(map);
+    }
+    else {
+        var image = {
+            url: '/static/img/icons/16.png',
+            scaledSize: new google.maps.Size(24, 32),
+        };
+        var marker = new google.maps.Marker({
+            map: map,
+            clickable: editable,
+            draggable: editable,
+            position: this.latLng,
+            raiseOnDrag: true,
+            title: location.name,
+            visible: true,
+            icon: image,
+        });
+        this.marker = marker;
+    }
 
-    var marker = new google.maps.Marker({
-        map: map,
-        clickable: true,
-        draggable: true,
-        position: this.latLng,
-        raiseOnDrag: true,
-        title: location.name,
-        visible: true,
-        icon: image,
-    });
-    this.marker = marker;
-    var placeinfo = new PlaceInfo(this);
-    this.placeinfo = placeinfo;
-    google.maps.event.addListener(marker, 'dragend', function(event) {
-        place.latLng = event.latLng;
-    });
-    google.maps.event.addListener(marker, 'drag', function(event) {
-        placeinfo.move(event.latLng);
-    });
-    google.maps.event.addListener(marker, 'click', function(event) {
-        placeinfo.open();
-    });
-
+    if(editable) {
+       if(!this.placeinfo) {
+            var place = this;
+            var placeinfo = new PlaceInfo(this);
+            this.placeinfo = placeinfo;
+            google.maps.event.addListener(marker, 'dragend', function(event) {
+                place.latLng = event.latLng;
+            });
+            google.maps.event.addListener(marker, 'drag', function(event) {
+                placeinfo.move(event.latLng);
+            });
+            google.maps.event.addListener(marker, 'click', function(event) {
+                placeinfo.open();
+            });
+        }
+    }
     return marker;
+}
+
+Location.prototype.hide = function()
+{
+    if(this.marker)
+        this.marker.setMap(null);
+    if(this.placeinfo)
+        this.placeinfo.close();
 }
 
 Location.prototype.setInboundTravel = function(travel)
@@ -402,83 +404,115 @@ Location.prototype.setOutboundTravel = function(travel)
 };
 
 
-function Travel(mode, origin, destination, travel_time)
+function Travel(travel_data)
 {
-    console.log('travel from ' + origin.latLng + ' to ' +
-                destination.latLng + ' by ' + mode);
     this.id = 'travel-' + timeline_uid++;
-    this.mode = mode;
-    this.origin = origin;
-    this.destination = destination;
-    this.time = travel_time;
-    this.infowindow = null;
-    var color = '';
-    if (mode == 'plane')
-        color='red';
-    else if (mode == 'boat')
-        color='blue';
-    else if (mode == 'train')
-        color='green';
-    else if (mode == 'car')
-        color='orange';
+    console.log(travel_data);
+    if('mode' in travel_data)
+        this.mode = travel_data.mode;
     else
-        color='black';
+        this.mode = 'plane';
 
-    var polyline = new google.maps.Polyline({
-        draggable: false,
-        geodesic: mode=='plane',
-        clickable: true,
-        map: map,
-        path: [origin.latLng, destination.latLng],
-        strokeColor: color
-    });
-    this.polyline = polyline;
-    var travel = this;
-    google.maps.event.addListener(origin.marker, 'drag', function(event) {
-        polyline.setPath([event.latLng, destination.latLng]);
-        travel.moveInfoWindow(event.latLng, destination.latLng);
-    });
-    google.maps.event.addListener(destination.marker, 'drag', function(event) {
-        polyline.setPath([origin.latLng, event.latLng]);
-        travel.moveInfoWindow(origin.latLng, event.latLng);
-    });
-    google.maps.event.addListener(polyline, 'click', function(event) {
-        if (travel.infowindow) {
-            console.log(travel);
-            travel.moveInfoWindow(origin.latLng, destination.latLng);
-            travel.infowindow.open(map);
-        }
-        else {
-            $.get( "/widgets/timeline/travel", function( form ) {
-                var position = google.maps.geometry.spherical.interpolate(
-                    origin.latLng, destination.latLng, 0.5);
-                var div = document.createElement('div');
-                div.className = 'travelinfo';
-                div.innerHTML = form;
-                div.id = 'travel-' + timeline_uid++;
-                travel.div = div;
-                var infowindow = new google.maps.InfoWindow({
-                    content: div,
-                    disableAutoPan: true,
-                    maxWidth: 235,
-                    pixelOffset: new google.maps.Size(0, 7),
-                    position: position
-                });
-                infowindow.open(map);
-                travel.infowindow=infowindow;
-                console.log(travel);
-                $(div).change(function() {
-                    var newMode =
-                        $('div#'+div.id+' form select[name=travel-mode]')
-                        .val();
-                    travel.setMode(newMode);
-                    travel.time =
-                        $('div#'+div.id+' form input[name=travel-hours]')
-                        .val();
-                    });
+    if(('origin' in travel_data) &&
+       (travel_data.origin instanceof Location))
+        this.origin = travel_data.origin;
+    else
+        this.origin = null;
+
+    if(('destination' in travel_data) &&
+       (travel_data.destination instanceof Location))
+        this.destination = travel_data.destination;
+    else
+        this.destination = null;
+
+    if('time' in travel_data) {
+        this.time = travel_data.time;
+    }
+    else {
+        this.time = 0;
+    }
+    this.infowindow = null;
+    this.has_listeners = false;
+    this.event_handlers = [];
+}
+
+Travel.prototype.draw = function(editable)
+{
+    if(this.polyline) {
+        this.setMode(this.mode);
+        this.polyline.setOptions({clickable: editable, map:map});
+    }
+    else {
+       var polyline = new google.maps.Polyline({
+            draggable: false,
+            clickable: editable,
+            map: map,
+            path: [this.origin.latLng, this.destination.latLng],
+        });
+        this.polyline = polyline;
+        this.setMode(this.mode);
+    }
+    if(editable && !this.has_listeners) {
+        var travel = this;
+        var eh1 = google.maps.event.addListener(
+            travel.origin.marker, 'drag', function(event) {
+                polyline.setPath([event.latLng, travel.destination.latLng]);
+                travel.moveInfoWindow(event.latLng, travel.destination.latLng);
             });
-        }
-    });
+        var eh2 = google.maps.event.addListener(
+            travel.destination.marker, 'drag', function(event) {
+                polyline.setPath([travel.origin.latLng, event.latLng]);
+                travel.moveInfoWindow(travel.origin.latLng, event.latLng);
+            });
+        var eh3 = google.maps.event.addListener(
+            polyline, 'click', function(event) {
+                if (travel.infowindow) {
+                    travel.moveInfoWindow(travel.origin.latLng,
+                                          travel.destination.latLng);
+                    travel.infowindow.open(map);
+                }
+                else {
+                    $.get( "/widgets/timeline/travel", function( form ) {
+                        var div = document.createElement('div');
+                        div.className = 'travelinfo';
+                        div.innerHTML = form;
+                        div.id = 'travel-' + timeline_uid++;
+                        travel.div = div;
+                        var infowindow = new google.maps.InfoWindow({
+                            content: div,
+                            disableAutoPan: true,
+                            maxWidth: 235,
+                            pixelOffset: new google.maps.Size(0, 7),
+                        });
+                        travel.moveInfoWindow(travel.origin,
+                                              travel.destination);
+                        infowindow.open(map);
+                        travel.infowindow=infowindow;
+                        console.log(travel);
+                        $(div).change(function() {
+                            var newMode =$(
+                                'div#'+div.id+' form select[name=travel-mode]')
+                                .val();
+                            travel.setMode(newMode);
+                            travel.time = $(
+                                'div#'+div.id+' form input[name=travel-hours]')
+                                .val();
+                        });
+                    });
+                }
+            })
+        this.event_handlers.push(eh1);
+        this.event_handlers.push(eh2);
+        this.event_handlers.push(eh3);
+        this.has_listeners = true;
+    }
+};
+
+Travel.prototype.hide = function() {
+    if(this.polyline)
+        this.polyline.setMap(null);
+    if(this.infowindow)
+        this.infowindow.close();
 }
 
 Travel.prototype.unlink = function()
@@ -490,6 +524,9 @@ Travel.prototype.unlink = function()
     if(this.infowindow) {
         this.infowindow.close();
         this.infowindow = null;
+    }
+    for(var i in this.event_handlers) {
+        google.maps.event.removeListener(this.event_handlers[i]);
     }
     this.origin = null
     this.destination = null;
@@ -555,12 +592,36 @@ Travel.prototype.moveInfoWindow = function(orig, dest)
 }
 
 
-function Trip(name)
+function Trip(trip_data)
 {
-    this.name = name;
+    console.log(trip_data);
+    this.id = 'trip-' + timeline_uid++;
+    this.name = trip_data.name;
+    console.log('creating trip ' + this.id);
     this.locations = [];
     this.travel = [];
-    this.id = 'trip-' + timeline_uid++;
+    if('locations' in trip_data) {
+        var len = trip_data.locations.length;
+        for(var i in trip_data.travel) {
+            var travel = new Travel(trip_data.travel[i]);
+            console.log('new travel '+travel.id);
+            console.log(travel);
+            this.travel.push(travel);
+        }
+        for(var i = 0; i < len; i++) {
+            var j = (len + i - 1) % len;
+            var outbound = this.travel[i];
+            var inbound = this.travel[j];
+            var place = new Location(trip_data.locations[i]);
+            inbound.destination = place;
+            outbound.origin = place;
+            place.setInboundTravel(inbound);
+            place.setOutboundTravel(outbound);
+            console.log('new location '+place.id);
+            console.log(place);
+            this.locations.push(place);
+        }
+    }
 }
 
 Trip.prototype.setName = function(name)
@@ -572,8 +633,7 @@ Trip.prototype.addPlace = function(place)
 {
     var trip = this;
     this.locations.push(place);
-    var marker = place.createMarker();
-
+    console.log('added place ' + place.id + ' to trip ' + trip.id);
     // if we have more than one place create travel to and from it.
     if(this.locations.length > 1) {
         console.log("More than 1 location, adding travel!");
@@ -582,8 +642,10 @@ Trip.prototype.addPlace = function(place)
         var curr = this.locations[n-1];
         var orig = this.locations[0];
 
-        var inbound_travel = new Travel('plane', prev, curr, 1);
-        var outbound_travel = new Travel('plane', curr, orig, 1);
+        var inbound_travel = new Travel({origin:prev,
+                                         destination:curr});
+        var outbound_travel = new Travel({origin:curr,
+                                          destination:orig});
         console.log('setting prev.outbound_travel');
         prev.setOutboundTravel(inbound_travel);
         console.log('setting orig.inbound_travel');
@@ -628,7 +690,8 @@ Trip.prototype.delPlace = function(place)
             console.log('Unlinking inbound and outbound travel');
             var prev = inbound.origin;
             var next = outbound.destination;
-            var new_travel = new Travel('plane', prev, next, 1);
+            var new_travel = new Travel({origin: prev,
+                                         destination: next});
             prev.setOutboundTravel(new_travel);
             next.setInboundTravel(new_travel);
 
@@ -643,6 +706,7 @@ Trip.prototype.delPlace = function(place)
                     this.travel.splice(i, 1);
             }
             outbound.unlink();
+            this.travel.push(new_travel);
         }
 
         for(i in this.locations) {
@@ -654,6 +718,8 @@ Trip.prototype.delPlace = function(place)
         }
         place.unlink();
     }
+    tripmanager.timeline.popdown();
+    tripmanager.timeline.popup();
 };
 
 
@@ -691,6 +757,7 @@ PlaceInfo.prototype.onAdd = function()
         var panes = placeinfo.getPanes();
         panes.floatPane.appendChild(div);
         placeinfo.div = div;
+        console.log('setting form input handler for ' + div.id);
         //next set up some events so that we save the form values for easy
         // reference in the place object.
         $('div#'+div.id+' .remove-place')
@@ -702,7 +769,7 @@ PlaceInfo.prototype.onAdd = function()
                 placeinfo.close();
             })
         $('div#'+div.id+' form input[name=place-name]')
-            .change(function() {
+            .keyup(function() {
                 placeinfo.place.name =
                     $('div#'+div.id+' form input[name=place-name]').val();
             });
@@ -715,9 +782,13 @@ PlaceInfo.prototype.onAdd = function()
             .change(function() {
                 placeinfo.place.duration =
                     $('div#'+div.id+' form input[name=place-days]').val();
+            })
+            .keyup(function() {
+                placeinfo.place.duration =
+                    $('div#'+div.id+' form input[name=place-days]').val();
             });
         $('div#'+div.id+' form textarea[name=place-desc]')
-            .change(function() {
+            .keyup(function() {
                 placeinfo.place.description =
                     $('div#'+div.id+' form textarea[name=place-desc]').val();
             });
