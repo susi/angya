@@ -75,18 +75,27 @@ TripManager.prototype.createTrip = function()
             tripmanager.timeline.popdown();
             tripmanager.saveTrip();
         });
+        $('#new-trip form input[name=cancel]').click(function(event) {
+            event.preventDefault();
+            tripmanager.timeline.popdown();
+            tripmanager.cancelTrip();
+        });
     });
+};
+
+TripManager.prototype.cancelTrip = function() {
+    this.timeline.popdown();
+    this.selected_trip.cancel();
+    this.listTrips();
 };
 
 TripManager.prototype.addPlace = function()
 {
-    console.log('TripManager.addPlace()');
     var place = new Location({
         name:'',
         date: dateToday(),
         duration: 1,
         description: ''});
-    console.log('created Location ' + place.id);
     this.selected_trip.addPlace(place);
     this.timeline.draw(true);
 }
@@ -720,6 +729,13 @@ Trip.prototype.delPlace = function(place)
     }
     tripmanager.timeline.popdown();
     tripmanager.timeline.popup();
+};
+
+Trip.prototype.cancel = function()
+{
+    for(var i=this.locations.length-1; i >= 0; i--) {
+        this.delPlace(this.locations[i]);
+    }
 };
 
 
