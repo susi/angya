@@ -10,6 +10,7 @@ var nav;
 var search;
 var infocard;
 var tripmanager;
+var socialshare;
 
 function loadWidgets() {
   $.getJSON( "/widgets/nav", function( widget ) {
@@ -19,7 +20,7 @@ function loadWidgets() {
        nav = new Navigation($(document.body), widget.buttons);
      })
      .fail(function(jqxhr, settings, exception) {
-       console.log("Triggered ajaxError handler.");
+       console.log("Navigation triggered ajaxError handler.");
        console.log(exception.stack);
        console.log(exception.message);
      });
@@ -32,7 +33,7 @@ function loadWidgets() {
         infocard = new Infocard($(document.body));
       })
       .fail(function(jqxhr, settings, exception) {
-        console.log("Triggered ajaxError handler.");
+        console.log("infocard triggered ajaxError handler.");
         console.log(exception.stack);
         console.log(exception.message);
       });
@@ -47,7 +48,7 @@ function loadWidgets() {
        loginButton = new LoginButton(div, widget.position);
      })
      .fail(function(jqxhr, settings, exception) {
-       console.log("Triggered ajaxError handler.");
+       console.log("Login triggered ajaxError handler.");
        console.log(exception.stack);
        console.log(exception.message);
      });
@@ -63,7 +64,7 @@ function loadWidgets() {
        search = new Search(map, div, widget.position);
      })
      .fail(function(jqxhr, settings, exception) {
-       console.log("Triggered ajaxError handler.");
+       console.log("Search triggered ajaxError handler.");
        console.log(exception.stack);
        console.log(exception.message);
      });
@@ -76,13 +77,29 @@ function loadWidgets() {
           tripmanager = new TripManager($(document.body), infocard, widget.trips);
       })
       .fail(function(jqxhr, settings, exception) {
-        console.log("Triggered ajaxError handler.");
+        console.log("Timeline triggered ajaxError handler.");
+        console.log(exception.stack);
+        console.log(exception.message);
+      });
+    });
+
+    $.getJSON( "/widgets/socialshare", function( widget ) {
+      var div = document.createElement('div');
+      div.innerHTML = widget.html;
+      loadCSSFile(widget.css);
+      $.getScript(widget.js)
+      .done(function(script, textStatus) {
+        socialshare = new SocialShare(div, widget.position);
+      })
+      .fail(function(jqxhr, settings, exception) {
+        console.log("socialshare.js failed to load.");
         console.log(exception.stack);
         console.log(exception.message);
       });
     });
 
 }
+
 
 function loadCSSFile(url) {
   $("<link>", {

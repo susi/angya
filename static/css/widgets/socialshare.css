@@ -1,0 +1,46 @@
+#social {
+    background-color: #d0d0d0;
+    color: #000;
+    font-size: 16px;
+    letter-spacing: 2px;
+    padding: 8px;
+    text-transform: uppercase;
+    width: 96px;
+    height: 33px;
+    position: absolute;
+    right: 300px;
+    top: 0;
+}
+
+#socialmask {
+    background-color: rgba(208,208,208,0.65);
+    width: 96px;
+    height: 33px;
+    position: absolute;
+    right: 300px;
+    top: 0;
+    padding: 8px;
+}
+
+#socialmask.disabled {
+    top: -400px;
+}
+
+#social a {
+    display: inline-block;
+    width: 26px;
+    height: 26px;
+    position: relative;    
+}
+
+#social #facebook {
+    background: url(/static/img/icons.png) -182px -239px;
+}
+
+#social #twitter { 
+    background: url(/static/img/icons.png) -224px -239px;
+}
+
+#social #googleplus { 
+    background: url(/static/img/icons.png) -264px -239px;
+}
