@@ -65,9 +65,10 @@ TripManager.prototype.createTrip = function()
         infocard.setHeader('Create Trip');
         infocard.setContents(form);
         infocard.open();
+        tripmanager.selected_trip.form = form;
         tripmanager.timeline.setTrip(tripmanager.selected_trip);
-        tripmanager.timeline.popup();
         tripmanager.timeline.editable = true;
+        tripmanager.timeline.popup();
         $('#new-trip form input[name=name]')
             .keyup(function() {
                 var trip_name = $('#new-trip form input[name=name]').val();
