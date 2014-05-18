@@ -1,6 +1,6 @@
 var map;
 var geoclocation = new google.maps.LatLng(0, 0);
-var infoWindowContent; // The element which holds the current info window content
+
 var markers = [];
 var lastUpdate;
 
@@ -17,8 +17,6 @@ $(document).ready(function(){
   // The map
   map = new google.maps.Map(document.getElementById("map-canvas"),
                             mapOptions);
-
-  infoWindowContent = document.getElementById('info-content');
 
 	// =========== functions ===============
   // get the user's location
@@ -81,4 +79,3 @@ function geolocate() {
         });
     }
 }
-

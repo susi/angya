@@ -4,11 +4,13 @@ var searchBoxInput;
 var goButton;
 // places service is bound to the search box and the map.
 var placesSrv;
+var searchResults;
 
-function Search(map, div, position) {
+function Search(map, div, position, resultsdiv) {
   this.map = map;
   this.div = div;
   this.position = position;
+  searchResults = resultsdiv;
 
   // Search box
   searchBoxInput = div.children[0];
@@ -82,7 +84,6 @@ function placeMarkersOnMap(places) {
             {
                 if (status != google.maps.places.PlacesServiceStatus.OK) {
                     console.log("no photo :(");
-                    return;
                 }
             }
         );
@@ -102,35 +103,36 @@ function getPlaceDetails() {
                 console.log("blääh");
                 return;
             }
-            buildPlaceIW(place);
+            buildPlaceInfo(place);
             infocard.setHeader(place.name);
-            infocard.setContents(infoWindowContent);
-            infocard.resize(250, 350)
+            infocard.replaceContents(searchResults);
+            infocard.resize(300, 350)
             infocard.open();
         });
 }
 
-// Create the infoWindow contents from the place deatis json.
-function buildPlaceIW(place) {
-    document.body.appendChild(infoWindowContent);
-    console.log("buildPlaceIW("+place.name+")");
-    document.getElementById('iw-icon').innerHTML = '<img class="hotelIcon" ' +
-        'src="' + place.icon + '"/>';
-    document.getElementById('iw-url').innerHTML = '<b><a href="' + place.url +
-        '">' + place.name + '</a></b>';
-    document.getElementById('iw-address').textContent = place.vicinity;
+function buildPlaceInfo(place)
+{
+    var icon = $('<img>')
+        .attr('src', place.icon)
+        .addClass('hotelIcon')
+    $('#iw-icon', searchResults).empty().append(icon);
+    var link = $('<a>')
+        .attr('href', place.url)
+        .addClass('search-strong')
+        .html(place.name);
+    $('#iw-url', searchResults).empty().append(link);
+    $('#iw-address', searchResults).html(place.vicinity);
 
-    if (place.formatted_phone_number) {
-        document.getElementById('iw-phone-row').style.display = '';
-        document.getElementById('iw-phone').textContent =
-            place.formatted_phone_number;
-    } else {
-        document.getElementById('iw-phone-row').style.display = 'none';
+    if(place.formatted_phone_number) {
+        $('#iw-phone-row', searchResults).show();
+        $('#iw-phone', searchResults).html(place.formatted_phone_number);
+    }
+    else {
+        $('#iw-phone-row', searchResults).hide();
     }
 
-    // Assign a five-star rating to the hotel, using a black star ('&#10029;')
-    // to indicate the rating the hotel has earned, and a white star ('&#10025;')
-    // for the rating points not achieved.
+    // assign a star rating
     if (place.rating) {
         var ratingHtml = '';
         for (var i = 0; i < 5; i++) {
@@ -139,28 +141,29 @@ function buildPlaceIW(place) {
             } else {
                 ratingHtml += '&#10029;';
             }
-            document.getElementById('iw-rating-row').style.display = '';
-            document.getElementById('iw-rating').innerHTML = ratingHtml;
         }
+        $('iw-rating-row', searchResults).hide();
+        $('iw-rating', searchResults).html(ratingHtml);
     } else {
-        document.getElementById('iw-rating-row').style.display = 'none';
+        $('iw-rating-row', searchResults).hide();
     }
 
     if (place.website) {
-        var website = place.website;
-        document.getElementById('iw-website-row').style.display = '';
-        document.getElementById('iw-website').textContent = website;
+        var link = $('<a>')
+            .attr('href', place.website)
+            .addClass('search-strong')
+            .html(place.website);
+        $('#iw-website-row', searchResults).show();
+        $('#iw-website', searchResults).empty().append(link);
     } else {
-        document.getElementById('iw-website-row').style.display = 'none';
+        $('#iw-website-row', searchResults).hide();
     }
 
     if (place.photos) {
-        imgUrl = place.photos[0].getUrl({maxHeight: 200, maxWidth: 200});
-        img = document.getElementById('iw-photo');
-        img.src = imgUrl;
-        img.style.display = 'block';
+        var imgUrl = place.photos[0].getUrl({maxHeight: 200, maxWidth: 200});
+        $('#iw-photo', searchResults).attr('src', imgUrl).show();
     }
     else {
-        document.getElementById('iw-photo').style.display = 'none';
+        $('#iw-photo', searchResults).hide();
     }
 }

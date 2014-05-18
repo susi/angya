@@ -71,12 +71,13 @@ function loadWidgets() {
 
     $.getJSON( "/widgets/search", function( widget ) {
         var div = document.createElement('div');
-        div.innerHTML = widget.html;
+        div.innerHTML = widget.sbhtml;
         div.className = 'search';
+        var infocard = $('<div>').html(widget.html);
         loadCSSFile(widget.css);
         $.getScript(widget.js)
             .done(function(script, textStatus) {
-                search = new Search(map, div, widget.position);
+                search = new Search(map, div, widget.position, infocard);
             })
             .fail(function(jqxhr, settings, exception) {
                 console.log("Search triggered ajaxError handler.");

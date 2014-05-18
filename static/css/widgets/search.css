@@ -60,3 +60,11 @@
 .pac-matched {
   font-weight: 700;
 }
+
+.search-strong {
+    font-weight: bold;
+}
+
+#iw-rating {
+    color: #ffd420;
+}

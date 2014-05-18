@@ -38,9 +38,9 @@ Infocard.prototype.setContents = function(newBody)
   return this;
 }
 
-Infocard.prototype.addContents = function(moreContent)
+Infocard.prototype.replaceContents = function(moreContent)
 {
-  this.body.append(moreContent);
+  this.body.empty().append(moreContent);
 };
 
 Infocard.prototype.resize = function(width, height)
