@@ -97,11 +97,19 @@
 }
 
 .placeinfo .remove-place {
-    background: #ffd420;
+    background-color: #ddd;
     color: black;
     padding: 8px;
     margin-top: 5px;
     display: inline-block;
+    transition:background-color .5s;
+    -moz-transition:background-color .5s;
+    -o-transition:background-color .5s;
+    -webkit-transition:background-color .5s;
+}
+
+.placeinfo .remove-place:hover {
+    background-color: #ffd420;
 }
 
 .placeinfo .close-icon {
@@ -142,3 +150,29 @@
     font-weight: bold;
 }
 
+#trip-name {
+    font-size:16px;
+    padding:4px;
+    margin-top: 10px;
+    background-color: #ffd420;
+}
+
+.trip-btn {
+    background-color: #ddd;
+    font-size:12px;
+    letter-spacing:2px;
+    color: black;
+    text-transform:uppercase;
+    padding:10px;
+    margin-top: 10px;
+    transition:background-color .5s;
+    -moz-transition:background-color .5s;
+    -o-transition:background-color .5s;
+    -webkit-transition:background-color .5s;
+    display: inline-block;
+    width: 6em;
+}
+
+.trip-btn:hover {
+    background-color: #ffd420;
+}

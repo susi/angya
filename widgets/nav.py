@@ -21,7 +21,7 @@ class Navigation(object):
        'hint': 'my trips list'},
       {'name': 'edit',
        'url': 'javascript:tripmanager.createTrip()',
-       'hint': 'edit/create trip'},
+       'hint': 'create trip'},
       {'name': 'marker',
        'url': 'javascript:tripmanager.addPlace()',
        'hint': 'add place to trip'},

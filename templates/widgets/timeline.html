@@ -7,10 +7,10 @@
   <form>
     Trip name: <input id="trip-name" name="name"
                       type="text" value="unnamed trip"><br>
-    <a id="trip-dest-add"
-       href="javascript:tripmanager.addPlace()">Add place to trip</a><br>
-    <input id="trip-submit" type="submit" value="submit">
-    <input type="button" name="cancel" value="cancel">
+    <a class="trip-btn" id="trip-dest-add"
+       href="javascript:tripmanager.addPlace()">+ place</a><br>
+    <input class="trip-btn" id="trip-submit" type="submit" value="submit">
+    <input class="trip-btn" type="button" name="cancel" value="cancel">
   </form>
 </div>
 {% elif new_place_form %}
