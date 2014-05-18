@@ -4,7 +4,8 @@ function Infocard(parent) {
     class: "gradual minimized"
   })
   .mouseenter(this, function(e) {
-    e.data.open();
+      if(infocard.body.html())
+          e.data.open();
   })
   .click(this, function(e) {
     e.data.close();
