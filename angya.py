@@ -11,6 +11,7 @@ import widgets.infocard
 import widgets.login
 import widgets.nav
 import widgets.search
+import widgets.socialshare
 import widgets.timeline
 
 # Create a fals application.
@@ -64,6 +65,11 @@ def timeline_handler(trip_id=None):
 def timeline_post_handler():
     timeline = widgets.timeline.Timeline(app)
     return timeline.create(flask.request.data)
+
+@app.route('/widgets/socialshare')
+def soacialshare_handler():
+    social = widgets.socialshare.SocialShare(app)
+    return social.render()
 
 
 if __name__ == '__main__':

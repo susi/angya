@@ -220,6 +220,8 @@ function Timeline(parent)
 
 Timeline.prototype.popup = function()
 {
+    if(this.trip.key)
+        window.location.href = this.trip.key;
     this.draw(this.editable);
     $(this.div).css('bottom','22px');
     // draw lines to the map
@@ -227,6 +229,7 @@ Timeline.prototype.popup = function()
 
 Timeline.prototype.popdown = function()
 {
+    window.location.hash = '';
     $(this.div).css('bottom','-80px');
     this.timeline.empty();
     for (i in this.trip.locations) {
@@ -611,6 +614,7 @@ function Trip(trip_data)
 {
     console.log(trip_data);
     this.id = 'trip-' + timeline_uid++;
+    this.key = trip_data.key;
     this.name = trip_data.name;
     console.log('creating trip ' + this.id);
     this.locations = [];

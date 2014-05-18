@@ -69,7 +69,7 @@ function photoClicked(photoLocation) {
 // Bias the initial map position to the user's geographical location,
 // as supplied by the browser's 'navigator.geolocation' object.
 function geolocate() {
-    if (navigator.geolocation) {
+    if (navigator.geolocation && !(window.location.hash)) {
 
         navigator.geolocation.getCurrentPosition(function(position) {
             geolocation = new google.maps.LatLng(

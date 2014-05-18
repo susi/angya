@@ -1,8 +1,14 @@
-<div id="login" class="clearFix">
-{% if user is defined %}
-    <i class="userIcon"><strong class="welcome">Welcome</strong><p class="welcome"> {{user}}</p></i>
-{% else %}
-    <a href="{{url}}" id="loginRegister">register</a>
-{% endif %}
-    <a href="{{url}}" id="loginButton">{{button_text}}</a>
+<div id="login">
+{%- if user is defined -%}
+  <div id="welcome">
+    <i id="user-icon"></i>
+    <p id="welcome-text">
+      <strong>Welcome</strong><br>
+      <span>{{- user -}}</span>
+    </p>
+  </div>
+{%- else -%}
+  <a href="{{url}}" id="login-register">register</a>
+{%- endif -%}
+  <a href="{{url}}" id="login-button">{{button_text}}</a>
 </div>
