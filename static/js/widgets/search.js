@@ -137,15 +137,17 @@ function buildPlaceInfo(place)
         var ratingHtml = '';
         for (var i = 0; i < 5; i++) {
             if (place.rating < (i + 0.5)) {
-                ratingHtml += '&#10025;';
+                ratingHtml += '&#9734;';
             } else {
-                ratingHtml += '&#10029;';
+                ratingHtml += '&#9733;';
             }
         }
-        $('iw-rating-row', searchResults).hide();
-        $('iw-rating', searchResults).html(ratingHtml);
+        $('#iw-rating-row', searchResults).show();
+        $('#iw-rating', searchResults).html(ratingHtml);
+        console.log(ratingHtml);
+        console.log($('#iw-rating', searchResults));
     } else {
-        $('iw-rating-row', searchResults).hide();
+        $('#iw-rating-row', searchResults).hide();
     }
 
     if (place.website) {
