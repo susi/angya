@@ -34,13 +34,16 @@ Infocard.prototype.setHeader = function(newHeader)
 
 Infocard.prototype.setContents = function(newBody)
 {
+    console.log('infocard newBody: ' + newBody);
   this.body.html(newBody);
   return this;
 }
 
-Infocard.prototype.replaceContents = function(moreContent)
+Infocard.prototype.replaceContents = function(newContent)
 {
-  this.body.empty().append(moreContent);
+    console.log('infocard newContent')
+    console.log(newContent);
+  this.body.empty().append(newContent);
 };
 
 Infocard.prototype.resize = function(width, height)

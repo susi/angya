@@ -56,37 +56,44 @@ TripManager.prototype.showTrip = function(trip_id)
     });
 };
 
+TripManager.prototype.createTripForm = function(form)
+{
+    infocard.close();
+    infocard.setHeader('Create Trip');
+    infocard.setContents(form);
+    infocard.resize(200, 350)
+    infocard.open();
+    $('#new-trip form input[name=name]')
+        .keyup(function() {
+            var trip_name = $('#new-trip form input[name=name]').val();
+            tripmanager.selected_trip.setName(trip_name)
+            tripmanager.timeline.setHeader(trip_name);
+        })
+        .focus();
+    $('#new-trip form').submit(function(event) {
+        console.log('submitting as intended');
+        event.preventDefault();
+        tripmanager.timeline.popdown();
+        tripmanager.saveTrip();
+    });
+    $('#new-trip form input[name=cancel]').click(function(event) {
+        console.log('cancel trip');
+        event.preventDefault();
+        tripmanager.timeline.popdown();
+        tripmanager.cancelTrip();
+    });
+}
 
 TripManager.prototype.createTrip = function()
 {
     var tripmanager = this;
     tripmanager.selected_trip = new Trip({name:'unnamed trip'});
     $.get( "/widgets/timeline/new", function( form ) {
-        infocard.close();
-        infocard.setHeader('Create Trip');
-        infocard.setContents(form);
-        infocard.open();
-        tripmanager.selected_trip.form = form;
+        tripmanager.selected_trip.setForm(form);
         tripmanager.timeline.setTrip(tripmanager.selected_trip);
         tripmanager.timeline.editable = true;
         tripmanager.timeline.popup();
-        $('#new-trip form input[name=name]')
-            .keyup(function() {
-                var trip_name = $('#new-trip form input[name=name]').val();
-                tripmanager.selected_trip.setName(trip_name)
-                tripmanager.timeline.setHeader(trip_name);
-            })
-            .focus();
-        $('#new-trip form').submit(function(event) {
-            event.preventDefault();
-            tripmanager.timeline.popdown();
-            tripmanager.saveTrip();
-        });
-        $('#new-trip form input[name=cancel]').click(function(event) {
-            event.preventDefault();
-            tripmanager.timeline.popdown();
-            tripmanager.cancelTrip();
-        });
+        tripmanager.createTripForm(form);
     });
 };
 
@@ -96,15 +103,34 @@ TripManager.prototype.cancelTrip = function() {
     this.listTrips();
 };
 
-TripManager.prototype.addPlace = function()
+TripManager.prototype.addPlace = function(place_data)
 {
-    var place = new Location({
-        name:'',
-        date: dateToday(),
-        duration: 1,
-        description: ''});
-    this.selected_trip.addPlace(place);
-    this.timeline.draw(true);
+    if (typeof place_data == 'undefined') {
+        place_data = {
+            name:'',
+            date: dateToday(),
+            duration: 1,
+            description: ''};
+        console.log('place_data is undefined, created default');
+    }
+    console.log(place_data);
+    var place = new Location(place_data);
+    console.log(place);
+    if (!this.selected_trip) {
+        console.log('no trip, creating it first');
+        this.createTrip();
+        var tripmanager = this;
+        setTimeout(function() {
+            console.log('adding place to trip');
+            tripmanager.selected_trip.addPlace(place);
+            tripmanager.timeline.draw(true);
+        }, 400);
+    }
+    else {
+        this.createTripForm(this.selected_trip.getForm());
+        this.selected_trip.addPlace(place);
+        this.timeline.draw(true);
+    }
 }
 
 TripManager.prototype.saveTrip = function()
@@ -312,11 +338,11 @@ function Location(location_data)
     if('name' in location_data)
         this.name = location_data.name;
     else
-        this.name = null;
+        this.name = '';
     if('date' in location_data)
         this.date = location_data.date;
     else
-        thid.date = null;
+        this.date = dateToday();
     if('location' in location_data)
         this.latLng = new google.maps.LatLng(location_data.location.lat,
                                              location_data.location.lng);
@@ -325,7 +351,7 @@ function Location(location_data)
     if('duration' in location_data)
         this.duration = location_data.duration;
     else
-        this.duration = 0;
+        this.duration = 1;
     if('description' in location_data)
         this.description = location_data.description;
     else
@@ -749,6 +775,24 @@ Trip.prototype.cancel = function()
     }
 };
 
+Trip.prototype.getForm = function()
+{
+    if(this.form) {
+        $('#trip-name', this.form).val(this.name);
+        return this.form.html();
+    }
+    else {
+        return 'WTF!?!?!?! <blink>NO</blink> form?!?!';
+    }
+};
+
+Trip.prototype.setForm = function(form_text)
+{
+    this.form = $('<div>').html(form_text);
+    console.log('form data set:' + form_text);
+    console.log(this.form);
+};
+
 
 PlaceInfo.prototype = new google.maps.OverlayView();
 function PlaceInfo(place)
@@ -796,16 +840,19 @@ PlaceInfo.prototype.onAdd = function()
                 placeinfo.close();
             })
         $('div#'+div.id+' form input[name=place-name]')
+            .val(placeinfo.place.name)
             .keyup(function() {
                 placeinfo.place.name =
                     $('div#'+div.id+' form input[name=place-name]').val();
             });
         $('div#'+div.id+' form input[name=place-date]')
+            .val(placeinfo.place.date)
             .change(function() {
                 placeinfo.place.date =
                     $('div#'+div.id+' form input[name=place-date]').val();
             });
         $('div#'+div.id+' form input[name=place-days]')
+            .val(placeinfo.place.duration)
             .change(function() {
                 placeinfo.place.duration =
                     $('div#'+div.id+' form input[name=place-days]').val();
@@ -815,6 +862,7 @@ PlaceInfo.prototype.onAdd = function()
                     $('div#'+div.id+' form input[name=place-days]').val();
             });
         $('div#'+div.id+' form textarea[name=place-desc]')
+            .val(placeinfo.place.description)
             .keyup(function() {
                 placeinfo.place.description =
                     $('div#'+div.id+' form textarea[name=place-desc]').val();

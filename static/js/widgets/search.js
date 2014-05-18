@@ -166,4 +166,22 @@ function buildPlaceInfo(place)
     else {
         $('#iw-photo', searchResults).hide();
     }
+    var place_json = {
+        name: place.name,
+        description: place.website,
+        location: {
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng()
+        }
+    };
+    var addToTripButton = $('<a>')
+        .attr('href',
+              'javascript:tripmanager.addPlace('+
+              JSON.stringify(place_json)+');')
+        .attr('id', 'iw-add-place')
+        .addClass('search-strong')
+        .html('add to trip');
+    $('#iw-button-bar', searchResults)
+        .empty()
+        .append(addToTripButton);
 }

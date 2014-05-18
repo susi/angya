@@ -68,3 +68,23 @@
 #iw-rating {
     color: #ffd420;
 }
+
+#iw-add-place {
+    background-color: #ddd;
+    font-size:12px;
+    letter-spacing:2px;
+    color: black;
+    text-transform:uppercase;
+    padding:10px;
+    margin-top: 10px;xs
+    transition:background-color .5s;
+    -moz-transition:background-color .5s;
+    -o-transition:background-color .5s;
+    -webkit-transition:background-color .5s;
+    display: block;
+    width: 8em;
+}
+
+a#iw-add-place:hover {
+    background-color: #ffd420;
+}
