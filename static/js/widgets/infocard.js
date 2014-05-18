@@ -23,7 +23,7 @@ Infocard.prototype.open = function()
 
 Infocard.prototype.close = function()
 {
-  $(this.div).css('right', ((this.div.width()+30) * -1) + 'px');
+  $(this.div).css('right', ((this.div.width()+10) * -1) + 'px');
 };
 
 Infocard.prototype.setHeader = function(newHeader)

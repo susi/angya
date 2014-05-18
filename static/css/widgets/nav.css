@@ -53,7 +53,6 @@
     padding: 11px;
     font-size:14px;
     background:#FFF;
-    text-transform:uppercase;
     font-weight:700;
     border:1px solid #d7d5d5;
     white-space:nowrap;
@@ -82,7 +81,7 @@
 
 #map-nav i {
     display:inline-block;
-    height:26px;
+    height:30px;
     width:29px;
     margin-top:30%;
     background:url(/static/img/icons.png) -26px -269px no-repeat;
@@ -92,17 +91,17 @@
     background:url(/static/img/airplane.png) no-repeat;
 }
 
-#map-nav a#camera i{
-    background-position:-63px -272px;
+#map-nav a#suitcase i{
+    background:url(/static/img/suitcase.png) no-repeat;
 }
-#map-nav a#write i{
+#map-nav a#edit i{
     background-position:-110px -272px;
 }
 #map-nav a#marker i{
     background-position:-152px -272px;
 }
-#map-nav a#text i{
-    background-position:-183px -273px;
+#map-nav a#list i{
+    background:url(/static/img/list.png) no-repeat;
 }
 #map-nav a#map-type i{
     background-position:-219px -273px;

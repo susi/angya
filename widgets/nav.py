@@ -5,7 +5,7 @@ import flask
 from google.appengine.api import users
 
 class Navigation(object):
-  """The Navigation returns information to render the navigation menu with buttons."""
+  """The Navigation returns information to render the nav menu buttons."""
   def __init__(self, app):
       self.app = app
 
@@ -13,13 +13,21 @@ class Navigation(object):
     """Returns a json map of the buttons for the navigation bar."""
 
     buttons = [
-      {'name': 'close', 'url': 'javascript:closeNavigation()', 'hint': 'close'},
-      {'name': 'trip', 'url': 'javascript:tripmanager.listTrips()', 'hint': 'my trips'},
-      {'name': 'camera', 'url': 'javascript:alert("Add photo!")', 'hint': 'add photo'},
-      {'name': 'write', 'url': 'javascript:alert("Write review...")', 'hint': 'add impression'},
-      {'name': 'text', 'url': 'javascript:alert("Add a review")', 'hint': 'add review'},
-      {'name': 'marker', 'url': 'javascript:alert("Add a place")', 'hint': 'add place'},
-      {'name': 'map-type', 'url': 'javascript:swapMapType()', 'hint': 'map type'},
+      {'name': 'close',
+       'url': 'javascript:closeNavigation()',
+       'hint': 'close navigation'},
+      {'name': 'list',
+       'url': 'javascript:tripmanager.listTrips()',
+       'hint': 'my trips list'},
+      {'name': 'edit',
+       'url': 'javascript:tripmanager.createTrip()',
+       'hint': 'edit/create trip'},
+      {'name': 'marker',
+       'url': 'javascript:tripmanager.addPlace()',
+       'hint': 'add place to trip'},
+      {'name': 'map-type',
+       'url': 'javascript:swapMapType()',
+       'hint': 'change map type'},
     ]
 
     widget = {

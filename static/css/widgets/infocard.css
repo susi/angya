@@ -1,11 +1,17 @@
 #infocard {
     bottom: 150px;
-    width: 250px;
+    width: 200px;
     height: 350px;
     position: absolute;
     background-color: rgba(255, 255, 255, .85);
-    padding: 20px;
+    padding: 20px 0 20px 20px;
     font-size: 14px;
+}
+
+#infocard p {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 330px;
 }
 
 .infobox {

@@ -33,6 +33,7 @@ TripManager.prototype.listTrips = function()
     var li = $('<li>').append(a).appendTo(ul);
 
     infocard.setContents(ul);
+    infocard.resize(200, 350)
     infocard.open();
 };
 

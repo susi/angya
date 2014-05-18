@@ -11,6 +11,7 @@ class Search(object):
   def render(self):
     button = {
       'name': 'search',
+      'sbhtml': flask.render_template('widgets/search-box.html'),
       'html': flask.render_template('widgets/search.html'),
       'position': 'TOP_LEFT',
       'js': flask.url_for('static', filename='js/widgets/search.js'),
