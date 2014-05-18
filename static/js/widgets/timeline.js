@@ -567,11 +567,12 @@ Travel.prototype.draw = function(editable)
                             content: div,
                             disableAutoPan: true,
                             maxWidth: 235,
+                            position: event.latLng,
                             pixelOffset: new google.maps.Size(0, 7),
                         });
+                        infowindow.open(map);
                         travel.moveInfoWindow(travel.origin,
                                               travel.destination);
-                        infowindow.open(map);
                         travel.infowindow=infowindow;
                         console.log(travel);
                         $(div).change(function() {
