@@ -19,13 +19,18 @@ TripManager.prototype.listTrips = function()
     closeNavigation();
     infocard.close();
     infocard.setHeader('My trips');
-    var ul = $('<ul>');
+    var ul = $('<ol>');
     for (i in this.trips) {
         var trip = this.trips[i];
         var a = $('<a>')
             .attr('href', 'javascript:tripmanager.showTrip("'+trip.key+'")')
             .html(trip.name);
-        var li = $('<li>').append(a).appendTo(ul);
+        var del = $('<a>')
+            .css('color', 'red')
+            .attr('title', 'delete trip')
+            .attr('href', 'javascript:tripmanager.deleteTrip("'+trip.key+'")')
+            .html(' x');
+        var li = $('<li>').append(a).append(del).appendTo(ul);
     }
     var a = $('<a>')
         .attr('href', 'javascript:tripmanager.createTrip()')
@@ -102,6 +107,40 @@ TripManager.prototype.cancelTrip = function() {
     this.selected_trip.cancel();
     this.listTrips();
 };
+
+TripManager.prototype.deleteTrip = function(trip_id) {
+    var tripmanager = this;
+    $.ajax({
+        type: 'DELETE',
+        url: '/widgets/timeline/' + trip_id,
+        complete: function(jqxhr) {
+            if(jqxhr.status == 200) {
+                if(jqxhr.responseText == 'OK') {
+                    for(var i in tripmanager.trips) {
+                        var trip = tripmanager.trips[i];
+                        if(trip.key == trip_id) {
+                            alert('deleted trip '+trip.name+' successfully');
+                            tripmanager.trips.splice(i, 1);
+                        }
+                    }
+                    if(tripmanager.selected_trip) {
+                        tripmanager.timeline.popdown();
+                    }
+                    tripmanager.listTrips();
+                }
+                else {
+                    alert('You need to be logged in and own the trip'+
+                          ' to delete it');
+                }
+            }
+            else {
+                tripmanager.timeline.popup();
+                alert('Deleteing trip failed. Try again.');
+            }
+        }
+    });
+
+}
 
 TripManager.prototype.addPlace = function(place_data)
 {

@@ -61,6 +61,11 @@ def timeline_handler(trip_id=None):
     else:
         return timeline.render(trip_id)
 
+@app.route('/widgets/timeline/<trip_id>', methods=['DELETE'])
+def timeline_delete_handler(trip_id):
+    timeline = widgets.timeline.Timeline(app)
+    return timeline.delete(trip_id)
+
 @app.route('/widgets/timeline/create', methods=['POST'])
 def timeline_post_handler():
     timeline = widgets.timeline.Timeline(app)

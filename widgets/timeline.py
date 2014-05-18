@@ -112,6 +112,16 @@ class Timeline(object):
         logging.debug('Pushed trip to ndb!')
         return key.urlsafe()
 
+    def delete(self, trip_id):
+        if not self.user:
+            logging.error('Login required')
+            return "LOGIN"
+        key = ndb.Key(urlsafe=trip_id);
+        trip = key.get()
+        if trip.owner == self.user.email():
+            key.delete();
+            return 'OK'
+        return 'NOTOWNER'
 
 class JsonObject(object):
     def __init__(self, **entries):
